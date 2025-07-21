@@ -74,6 +74,12 @@
     <Compile Include="frm_log.Designer.cs">
       <DependentUpon>frm_log.cs</DependentUpon>
     </Compile>
+    <Compile Include="frm_PickArea.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frm_PickArea.Designer.cs">
+      <DependentUpon>frm_PickArea.cs</DependentUpon>
+    </Compile>
     <Compile Include="GlobalParams.cs" />
     <Compile Include="KeyboardHook.cs" />
     <Compile Include="MouseTransClick.cs" />
@@ -90,6 +96,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frm_log.resx">
       <DependentUpon>frm_log.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_PickArea.resx">
+      <DependentUpon>frm_PickArea.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

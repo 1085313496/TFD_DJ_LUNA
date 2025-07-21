@@ -205,5 +205,13 @@ namespace TFD_DJ_LUNA
                 tFD_LUNA.SwitchType_Noise = rg_SWT_1.Checked ? 1 : 0;
             MessageShowList.SendEventMsg(string.Format("噪音涌动输出流按键方式已设置为: {0}", rg_SWT_1.Checked ? "依序交替按下CVZ" : "严格按照映射"), 1);
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            frm_PickArea f = new frm_PickArea();
+            f.TopLevel = true;
+            f.Opacity = 0.35;
+            f.Show();
+        }
     }
 }

@@ -37,6 +37,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.rg_SWT_2 = new System.Windows.Forms.RadioButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.button2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.tkb)).BeginInit();
             this.SuspendLayout();
             // 
@@ -50,7 +51,7 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(474, 34);
+            this.button1.Location = new System.Drawing.Point(474, 14);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 1;
@@ -111,6 +112,16 @@
             this.toolTip1.SetToolTip(this.rg_SWT_2, "图案0按下C 1按下V 2按下Z 3按下C");
             this.rg_SWT_2.UseVisualStyleBackColor = true;
             // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(474, 51);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(75, 23);
+            this.button2.TabIndex = 1;
+            this.button2.Text = "框选区域";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -119,6 +130,7 @@
             this.Controls.Add(this.rg_SWT_2);
             this.Controls.Add(this.rg_SWT_1);
             this.Controls.Add(this.lb_threshold);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.rtb);
             this.Controls.Add(this.tkb);
@@ -143,6 +155,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.RadioButton rg_SWT_2;
         private System.Windows.Forms.ToolTip toolTip1;
+        private System.Windows.Forms.Button button2;
     }
 }
 
