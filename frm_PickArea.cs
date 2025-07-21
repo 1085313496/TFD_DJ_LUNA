@@ -43,7 +43,9 @@ namespace TFD_DJ_LUNA
         {
             InitializeComponent();
             this.DialogResult = DialogResult.None;
-            bfg = new BufferedGraphicsContext().Allocate(this.CreateGraphics(), this.DisplayRectangle);
+            this.DoubleBuffered = true;
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
+            this.UpdateStyles();
         }
 
         private void frm_PickArea_Load(object sender, EventArgs e)
@@ -55,17 +57,15 @@ namespace TFD_DJ_LUNA
         {
             try
             {
-                PaintBody();
+                PaintBody(e.Graphics);
             }
             catch { }
         }
-               
 
 
-        private void PaintBody()
+
+        private void PaintBody(Graphics g)
         {
-            Bitmap btm = new Bitmap(this.DisplayRectangle.Width, this.DisplayRectangle.Height);
-            Graphics g = Graphics.FromImage((Image)btm);
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             Point ptLeftTop = ptLocation;
@@ -94,14 +94,14 @@ namespace TFD_DJ_LUNA
                 g.DrawString(text, TextFont, sb, 100, 100);
             }
 
-            Graphics displayG = this.bfg.Graphics;
-            displayG.Clear(this.BackColor);
-            displayG.DrawImage(btm, 0, 0);
-            bfg.Render();
-
             //GC.Collect();
         }
 
+        /// <summary>
+        /// 右键退出
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void frm_PickArea_MouseClick(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
@@ -111,6 +111,7 @@ namespace TFD_DJ_LUNA
             }
         }
 
+        #region 按住左键拖动框选
         /// <summary>
         /// 鼠标按下状态
         /// </summary>
@@ -151,10 +152,36 @@ namespace TFD_DJ_LUNA
                 this.Invalidate();
             }
         }
+        #endregion
+
+        #region 空格移动框选区
+        private bool isSpaceDown = false;
+        private void frm_PickArea_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Space)
+            {
+                if(!isSpaceDown)
+                {
+                    isSpaceDown = true;
+                    this.Cursor = Cursors.SizeAll; // 改变鼠标指针为移动状态
+                }
+            }
+        }
+
+        private void frm_PickArea_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Space)
+            {                
+                isSpaceDown = false;
+                this.Cursor = Cursors.Default; // 恢复鼠标指针
+            }
+
+        }
+        #endregion
+
 
         private void frm_PickArea_Resize(object sender, EventArgs e)
         {
-            bfg = new BufferedGraphicsContext().Allocate(this.CreateGraphics(), this.DisplayRectangle);
             this.Invalidate();
         }
     }

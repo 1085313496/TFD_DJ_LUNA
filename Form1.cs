@@ -211,7 +211,10 @@ namespace TFD_DJ_LUNA
             frm_PickArea f = new frm_PickArea();
             f.TopLevel = true;
             f.Opacity = 0.35;
-            f.Show();
+            if (f.ShowDialog() == DialogResult.OK)
+            { 
+                MessageShowList.SendEventMsg("已选择区域: " + f.PickedArea.ToString(), 1);
+            }
         }
     }
 }

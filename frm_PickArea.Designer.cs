@@ -42,6 +42,8 @@
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.frm_PickArea_Load);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.frm_PickArea_Paint);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.frm_PickArea_KeyDown);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.frm_PickArea_KeyUp);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.frm_PickArea_MouseClick);
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.frm_PickArea_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.frm_PickArea_MouseMove);
