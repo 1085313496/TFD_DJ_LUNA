@@ -320,7 +320,7 @@ namespace TFD_DJ_LUNA.Tools
         {
             try
             {
-                string iniPath = IniPatn == "" ? System.AppDomain.CurrentDomain.BaseDirectory + "\\Config\\Config.ini" : IniPatn;
+                string iniPath = IniPatn == "" ? System.AppDomain.CurrentDomain.BaseDirectory + "Config\\Config.ini" : IniPatn;
                 INIFile iniConfig = new INIFile(iniPath);
                 return iniConfig.IniReadValue(section, key);
             }
