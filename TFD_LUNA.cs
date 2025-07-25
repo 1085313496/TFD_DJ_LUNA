@@ -21,6 +21,11 @@ namespace TFD_DJ_LUNA
         public int Mode { get; set; }
 
         /// <summary>
+        /// 是否保存屏幕截图，缺省值false
+        /// </summary>
+        public bool SaveScreenShot { get; set; } = false;
+
+        /// <summary>
         /// 菱形图案识别区域设置
         /// </summary>
         public RecognizeSetting RecognizeSetting_Rhombus { get; set; }
@@ -230,25 +235,30 @@ namespace TFD_DJ_LUNA
                 }
                 else
                     scImg = ScreenPatternDetector.CaptureScreen(RecognizeSetting_Rhombus.Area);
+                string dtestr = DateTime.Now.ToString("HH_mm_ss_ffff");
                 #endregion
 
                 #region 识别截图是否有菱形图案，并按下对应按键
                 Point pt = new Point(0, 0);
                 if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
                 {
-                    Presskey("C", pt, "0");
+                    Presskey("C", pt, "0", dtestr);
+                    SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
                 else if (ScreenPatternDetector.IsPatternPresent(d_1, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
                 {
-                    Presskey("V", pt, "1");
+                    Presskey("V", pt, "1", dtestr);
+                    SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
                 else if (ScreenPatternDetector.IsPatternPresent(d_2, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
                 {
-                    Presskey("Z", pt, "2");
+                    Presskey("Z", pt, "2", dtestr);
+                    SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
                 else if (ScreenPatternDetector.IsPatternPresent(d_3, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
                 {
-                    Presskey("C", pt, "3");
+                    Presskey("C", pt, "3", dtestr);
+                    SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
                 else
                 {
@@ -264,13 +274,13 @@ namespace TFD_DJ_LUNA
         /// <param name="key"></param>
         /// <param name="pt"></param>
         /// <param name="imgNum"></param>
-        private void Presskey(string key, Point pt, string imgNum)
+        private void Presskey(string key, Point pt, string imgNum, string dtestr)
         {
             try
             {
                 if (SwitchType_Noise == 0)
                 {
-                    MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}", pt, key, imgNum), 1);
+                    MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}，{3}", pt, key, imgNum, dtestr), 1);
                     byte key1 = GlobalParams.GetKeyCode(key);
                     SendKBM.SendKeyPress(key1);
                 }
@@ -285,7 +295,8 @@ namespace TFD_DJ_LUNA
                         case 3: { _keycode = "C"; break; }
                         default: { _keycode = "C"; break; }
                     }
-                    MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}", pt, _keycode, imgNum), 1);
+
+                    MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}，{3}", pt, _keycode, imgNum, dtestr), 1);
                     byte key1 = GlobalParams.GetKeyCode(_keycode);
                     SendKBM.SendKeyPress(key1);
                     LaskKey_Noise = LaskKey_Noise >= 3 ? 1 : LaskKey_Noise + 1;
@@ -299,6 +310,21 @@ namespace TFD_DJ_LUNA
 
         #endregion
 
+        private void SaveScreenImg(Bitmap img, string DateInfo, string Foldername = "截屏")
+        {
+            try
+            {
+                if (!SaveScreenShot)
+                    return;
+
+                string Dir = string.Format("{0}\\{1}", rootPath, Foldername);
+                if (!System.IO.Directory.Exists(Dir))
+                    System.IO.Directory.CreateDirectory(Dir);
+
+                img.Save(string.Format("{0}\\{1}_0.png", Dir, DateInfo), ImageFormat.Png);
+            }
+            catch { }
+        }
 
         #region 上buff工具人
         /// <summary>
@@ -362,10 +388,11 @@ namespace TFD_DJ_LUNA
                 }
                 else
                     scImg = ScreenPatternDetector.CaptureScreen(RecognizeSetting_Rhombus.Area);
+                string dtestr = DateTime.Now.ToString("HH_mm_ss_ffff");
                 #endregion
 
                 //MessageShowList.SendEventMsg(string.Format("ManualSPSKILL={0},MusebarFull={1}", ManualSPSKILL, MusebarFull), 1);
-               
+
                 if (ManualSPSKILL != 0)
                 {
                     #region 截取灵感条图案区域
@@ -387,6 +414,7 @@ namespace TFD_DJ_LUNA
                     }
                     else
                         MuseBarImg = ScreenPatternDetector.CaptureScreen(RecognizeSetting_MuseBar.Area);
+                    string dtestrMB = DateTime.Now.ToString("HH_mm_ss_ffff");
                     #endregion
 
                     Point pt0 = new Point(0, 0);
@@ -398,8 +426,9 @@ namespace TFD_DJ_LUNA
                         #region 灵感条充满 等待手动使用强化技能或者自动强化技能
                         if (ManualSPSKILL != 1)
                         {
+                            SaveScreenImg(MuseBarImg, dtestrMB, "辅助流菱形识别区截屏");
                             #region 自动强化技能
-                            MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，将按下{1}", pt0, "Z"), 1);
+                            MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，将按下{1}，{2}", pt0, "Z", dtestrMB), 1);
                             byte key1 = GlobalParams.GetKeyCode("Z");
                             SendKBM.SendKeyPress(key1);
 
@@ -408,7 +437,7 @@ namespace TFD_DJ_LUNA
                         }
                         #endregion
 
-                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，请手动使用强化技能", pt0), 1);
+                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，请手动使用强化技能，{1}", pt0, dtestrMB), 1);
                         //string imgname = string.Format("{2}\\满灵感条图案区域\\{0}_{1}.png", DateTime.Now.ToString("yy_MM_ddTHH_mm_ss_ffff"),new Random().Next(), rootPath);
                         //MuseBarImg.Save(imgname,ImageFormat.Png);
                     }
@@ -425,19 +454,23 @@ namespace TFD_DJ_LUNA
                     #region 灵感条未充满或者不等待手动干预， 识别截图是否有菱形图案，并按下对应按键
                     if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
                     {
-                        Presskey_Assist(pt, "0");
+                        Presskey_Assist(pt, "0", dtestr);
+                        SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
                     else if (ScreenPatternDetector.IsPatternPresent(d_1, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
                     {
-                        Presskey_Assist(pt, "1");
+                        Presskey_Assist(pt, "1", dtestr);
+                        SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
                     else if (ScreenPatternDetector.IsPatternPresent(d_2, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
                     {
-                        Presskey_Assist(pt, "2");
+                        Presskey_Assist(pt, "2", dtestr);
+                        SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
                     else if (ScreenPatternDetector.IsPatternPresent(d_3, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
                     {
-                        Presskey_Assist(pt, "3");
+                        Presskey_Assist(pt, "3", dtestr);
+                        SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
                     else
                     {
@@ -456,7 +489,7 @@ namespace TFD_DJ_LUNA
         /// <param name="key"></param>
         /// <param name="pt"></param>
         /// <param name="imgNum"></param>
-        private void Presskey_Assist(Point pt, string imgNum)
+        private void Presskey_Assist(Point pt, string imgNum, string dtestr)
         {
             try
             {
@@ -482,7 +515,7 @@ namespace TFD_DJ_LUNA
                     }
                 }
 
-                MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}", pt, _keycode, imgNum), 1);
+                MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}\t{3}", pt, _keycode, imgNum, dtestr), 1);
                 byte key1 = GlobalParams.GetKeyCode(_keycode);
                 SendKBM.SendKeyPress(key1);
             }

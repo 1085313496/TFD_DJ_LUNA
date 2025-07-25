@@ -697,8 +697,19 @@ namespace TFD_DJ_LUNA
             }
         }
 
-        private void swb_EditPage_EnabledChanged(object sender, EventArgs e)
+        private void ckb_SaveScreenImg_CheckedChanged(object sender, EventArgs e)
         {
+            if(ckb_SaveScreenImg.Checked)
+            {
+                tFD_LUNA.SaveScreenShot = true;
+                MessageShowList.SendEventMsg("已启用截图保存功能", 1);
+            }
+            else
+            {
+                tFD_LUNA.SaveScreenShot=false;
+                MessageShowList.SendEventMsg("已禁用截图保存功能", 1);
+            }   
+
 
         }
     }

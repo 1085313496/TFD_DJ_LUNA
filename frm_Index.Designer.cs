@@ -84,6 +84,7 @@
             this.rb_Mode_Noise = new System.Windows.Forms.RadioButton();
             this.rb_Mode_Assist = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.ckb_SaveScreenImg = new System.Windows.Forms.CheckBox();
             this.gb_Noise.SuspendLayout();
             this.gb_Assist.SuspendLayout();
             this.gb_R.SuspendLayout();
@@ -655,6 +656,7 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.ckb_SaveScreenImg);
             this.groupBox5.Controls.Add(this.ckb_ShowLogFrm);
             this.groupBox5.Controls.Add(this.tb_ScreenShotInterval);
             this.groupBox5.Controls.Add(this.label16);
@@ -794,6 +796,18 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "运行日志";
             // 
+            // ckb_SaveScreenImg
+            // 
+            this.ckb_SaveScreenImg.AutoSize = true;
+            this.ckb_SaveScreenImg.Location = new System.Drawing.Point(191, 168);
+            this.ckb_SaveScreenImg.Name = "ckb_SaveScreenImg";
+            this.ckb_SaveScreenImg.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.ckb_SaveScreenImg.Size = new System.Drawing.Size(87, 21);
+            this.ckb_SaveScreenImg.TabIndex = 20;
+            this.ckb_SaveScreenImg.Text = "：保存截屏";
+            this.ckb_SaveScreenImg.UseVisualStyleBackColor = true;
+            this.ckb_SaveScreenImg.CheckedChanged += new System.EventHandler(this.ckb_SaveScreenImg_CheckedChanged);
+            // 
             // frm_Index
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -888,6 +902,7 @@
         private SwitchBar swb_EditPage;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox ckb_ShowLogFrm;
+        private System.Windows.Forms.CheckBox ckb_SaveScreenImg;
     }
 }
 
