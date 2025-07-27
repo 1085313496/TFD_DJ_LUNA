@@ -21,6 +21,11 @@ namespace TFD_DJ_LUNA
         public int Mode { get; set; }
 
         /// <summary>
+        /// opencv识图对比模式 0默认 1灰度图 2HSV
+        /// </summary>
+        public int OpencvMode { get; set; } = 2;
+
+        /// <summary>
         /// 是否保存屏幕截图，缺省值false
         /// </summary>
         public bool SaveScreenShot { get; set; } = false;
@@ -104,6 +109,8 @@ namespace TFD_DJ_LUNA
             RecognizeSetting_Rhombus = new RecognizeSetting("菱形图案识别设置");
             RecognizeSetting_Crosshair = new RecognizeSetting("自瞄准星图案识别设置");
             RecognizeSetting_MuseBar = new RecognizeSetting("灵感条图案识别设置");
+
+            OpencvMode = int.TryParse(Common.GetIniParamVal("菱形图案识别设置", "OpencvMode"), out int _opencvMode) ? _opencvMode : 2;
 
             Rectangle screenBounds = SystemInformation.VirtualScreen;
             if (RecognizeSetting_Rhombus.Area.Width <= 0 || RecognizeSetting_Rhombus.Area.Height <= 0)
@@ -240,22 +247,41 @@ namespace TFD_DJ_LUNA
 
                 #region 识别截图是否有菱形图案，并按下对应按键
                 Point pt = new Point(0, 0);
-                if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
+                bool _userGrey = false;
+                bool _useHSV = false;
+                switch (OpencvMode)
+                {
+                    case 0:
+                        _userGrey = false;
+                        _useHSV = false;
+                        break;
+                    case 1:
+                        _userGrey = true;
+                        _useHSV = false;
+                        break;
+                    case 2:
+                        _userGrey = false;
+                        _useHSV = true;
+                        break;
+                }
+
+                #region
+                if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
                 {
                     Presskey("C", pt, "0", dtestr);
                     SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
-                else if (ScreenPatternDetector.IsPatternPresent(d_1, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
+                else if (ScreenPatternDetector.IsPatternPresent(d_1, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
                 {
                     Presskey("V", pt, "1", dtestr);
                     SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
-                else if (ScreenPatternDetector.IsPatternPresent(d_2, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
+                else if (ScreenPatternDetector.IsPatternPresent(d_2, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
                 {
                     Presskey("Z", pt, "2", dtestr);
                     SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
-                else if (ScreenPatternDetector.IsPatternPresent(d_3, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
+                else if (ScreenPatternDetector.IsPatternPresent(d_3, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
                 {
                     Presskey("C", pt, "3", dtestr);
                     SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
@@ -263,7 +289,10 @@ namespace TFD_DJ_LUNA
                 else
                 {
                     // MessageShowList.SendEventMsg("未检测到任何图案", 3);
+                    SaveScreenImg(scImg, dtestr, "不匹配的截图");
                 }
+                #endregion
+
                 #endregion
             }
             catch (Exception ex) { MessageShowList.SendEventMsg(ex.Message, 1); }
@@ -419,7 +448,8 @@ namespace TFD_DJ_LUNA
 
                     Point pt0 = new Point(0, 0);
                     //if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, false, RecognizeSetting_MuseBar.Threshold, useHSV: true))
-                    if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, true, RecognizeSetting_MuseBar.Threshold, useHSV: false))
+                      // if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, true, RecognizeSetting_MuseBar.Threshold, useHSV: false))
+                  if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, false, RecognizeSetting_MuseBar.Threshold, useHSV: false))
                     {
                         MusebarFull = true;
 
@@ -451,23 +481,42 @@ namespace TFD_DJ_LUNA
                 if (ManualSPSKILL == 0 || !MusebarFull)
                 {
                     Point pt = new Point(0, 0);
+
+                    bool _userGrey = false;
+                    bool _useHSV = false;
+                    switch (OpencvMode)
+                    {
+                        case 0:
+                            _userGrey = false;
+                            _useHSV = false;
+                            break;
+                        case 1:
+                            _userGrey = true;
+                            _useHSV = false;
+                            break;
+                        case 2:
+                            _userGrey = false;
+                            _useHSV = true;
+                            break;
+                    }
+
                     #region 灵感条未充满或者不等待手动干预， 识别截图是否有菱形图案，并按下对应按键
-                    if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
+                    if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
                     {
                         Presskey_Assist(pt, "0", dtestr);
                         SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
-                    else if (ScreenPatternDetector.IsPatternPresent(d_1, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
+                    else if (ScreenPatternDetector.IsPatternPresent(d_1, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
                     {
                         Presskey_Assist(pt, "1", dtestr);
                         SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
-                    else if (ScreenPatternDetector.IsPatternPresent(d_2, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
+                    else if (ScreenPatternDetector.IsPatternPresent(d_2, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
                     {
                         Presskey_Assist(pt, "2", dtestr);
                         SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
-                    else if (ScreenPatternDetector.IsPatternPresent(d_3, scImg, out pt, false, RecognizeSetting_Rhombus.Threshold, useHSV: true))
+                    else if (ScreenPatternDetector.IsPatternPresent(d_3, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
                     {
                         Presskey_Assist(pt, "3", dtestr);
                         SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");

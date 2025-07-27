@@ -105,6 +105,22 @@ namespace TFD_DJ_LUNA
 
             ckb_ManualSPSKILL.Checked = tFD_LUNA.ManualSPSKILL == 1;
 
+            switch(tFD_LUNA.OpencvMode)
+            {
+                case 0:
+                    rg_R_bgr.Checked = true;
+                    break;
+                case 1:
+                    rg_R_Grey.Checked = true;
+                    break;
+                case 2:
+                    rg_R_HSV.Checked = true;
+                    break;
+                default:
+                    rg_R_bgr.Checked = true;
+                    break;
+            }
+
             if (tFD_LUNA.RecognizeSetting_Rhombus != null)
             {
                 tb_RX.Text = tFD_LUNA.RecognizeSetting_Rhombus.Area.X.ToString();
@@ -708,9 +724,38 @@ namespace TFD_DJ_LUNA
             {
                 tFD_LUNA.SaveScreenShot=false;
                 MessageShowList.SendEventMsg("已禁用截图保存功能", 1);
-            }   
+            }  
+        }
 
+        private void rg_R_CheckedChanged(object sender, EventArgs e)
+        {
+            RadioButton rb = sender as RadioButton;
+            if (!rb.Checked)
+                return;
 
+            int opencvImgMode = 0;
+            string _modename = rb.Text;
+
+            if (rg_R_bgr.Checked)
+            {
+                opencvImgMode = 0;
+            }
+            else if (rg_R_Grey.Checked)
+            {
+                opencvImgMode = 1;
+            }
+            else if (rg_R_HSV.Checked)
+            {
+                opencvImgMode = 2;
+            }
+
+            if(tFD_LUNA!=null)
+            {
+                tFD_LUNA.OpencvMode = opencvImgMode;
+                Common.SaveIniParamVal("菱形图案识别设置", "OpencvMode", opencvImgMode.ToString());
+            }
+
+            MessageShowList.SendEventMsg("已切换OpenCV图像处理模式: " + _modename, 1);
         }
     }
 }

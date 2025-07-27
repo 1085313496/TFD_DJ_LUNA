@@ -74,6 +74,7 @@
             this.label12 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
+            this.ckb_SaveScreenImg = new System.Windows.Forms.CheckBox();
             this.ckb_ShowLogFrm = new System.Windows.Forms.CheckBox();
             this.tb_ScreenShotInterval = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
@@ -84,7 +85,10 @@
             this.rb_Mode_Noise = new System.Windows.Forms.RadioButton();
             this.rb_Mode_Assist = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.ckb_SaveScreenImg = new System.Windows.Forms.CheckBox();
+            this.rg_R_bgr = new System.Windows.Forms.RadioButton();
+            this.rg_R_Grey = new System.Windows.Forms.RadioButton();
+            this.rg_R_HSV = new System.Windows.Forms.RadioButton();
+            this.label17 = new System.Windows.Forms.Label();
             this.gb_Noise.SuspendLayout();
             this.gb_Assist.SuspendLayout();
             this.gb_R.SuspendLayout();
@@ -291,6 +295,10 @@
             // 
             // gb_R
             // 
+            this.gb_R.Controls.Add(this.label17);
+            this.gb_R.Controls.Add(this.rg_R_HSV);
+            this.gb_R.Controls.Add(this.rg_R_Grey);
+            this.gb_R.Controls.Add(this.rg_R_bgr);
             this.gb_R.Controls.Add(this.btn_Recog_R);
             this.gb_R.Controls.Add(this.lb_THD_R);
             this.gb_R.Controls.Add(this.label3);
@@ -322,7 +330,7 @@
             this.btn_Recog_R.FlatAppearance.MouseOverBackColor = System.Drawing.Color.LightSteelBlue;
             this.btn_Recog_R.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_Recog_R.ForeColor = System.Drawing.Color.White;
-            this.btn_Recog_R.Location = new System.Drawing.Point(288, 130);
+            this.btn_Recog_R.Location = new System.Drawing.Point(288, 140);
             this.btn_Recog_R.Margin = new System.Windows.Forms.Padding(4);
             this.btn_Recog_R.Name = "btn_Recog_R";
             this.btn_Recog_R.Size = new System.Drawing.Size(69, 25);
@@ -335,7 +343,7 @@
             // lb_THD_R
             // 
             this.lb_THD_R.AutoSize = true;
-            this.lb_THD_R.Location = new System.Drawing.Point(328, 160);
+            this.lb_THD_R.Location = new System.Drawing.Point(328, 170);
             this.lb_THD_R.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lb_THD_R.Name = "lb_THD_R";
             this.lb_THD_R.Size = new System.Drawing.Size(32, 17);
@@ -345,7 +353,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(12, 137);
+            this.label3.Location = new System.Drawing.Point(12, 147);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(116, 17);
@@ -422,7 +430,7 @@
             // tkb_R
             // 
             this.tkb_R.AutoSize = false;
-            this.tkb_R.Location = new System.Drawing.Point(7, 157);
+            this.tkb_R.Location = new System.Drawing.Point(7, 167);
             this.tkb_R.Margin = new System.Windows.Forms.Padding(4);
             this.tkb_R.Maximum = 100;
             this.tkb_R.Name = "tkb_R";
@@ -675,6 +683,18 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "全局设置";
             // 
+            // ckb_SaveScreenImg
+            // 
+            this.ckb_SaveScreenImg.AutoSize = true;
+            this.ckb_SaveScreenImg.Location = new System.Drawing.Point(191, 168);
+            this.ckb_SaveScreenImg.Name = "ckb_SaveScreenImg";
+            this.ckb_SaveScreenImg.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.ckb_SaveScreenImg.Size = new System.Drawing.Size(87, 21);
+            this.ckb_SaveScreenImg.TabIndex = 20;
+            this.ckb_SaveScreenImg.Text = "：保存截屏";
+            this.ckb_SaveScreenImg.UseVisualStyleBackColor = true;
+            this.ckb_SaveScreenImg.CheckedChanged += new System.EventHandler(this.ckb_SaveScreenImg_CheckedChanged);
+            // 
             // ckb_ShowLogFrm
             // 
             this.ckb_ShowLogFrm.AutoSize = true;
@@ -796,17 +816,51 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "运行日志";
             // 
-            // ckb_SaveScreenImg
+            // rg_R_bgr
             // 
-            this.ckb_SaveScreenImg.AutoSize = true;
-            this.ckb_SaveScreenImg.Location = new System.Drawing.Point(191, 168);
-            this.ckb_SaveScreenImg.Name = "ckb_SaveScreenImg";
-            this.ckb_SaveScreenImg.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.ckb_SaveScreenImg.Size = new System.Drawing.Size(87, 21);
-            this.ckb_SaveScreenImg.TabIndex = 20;
-            this.ckb_SaveScreenImg.Text = "：保存截屏";
-            this.ckb_SaveScreenImg.UseVisualStyleBackColor = true;
-            this.ckb_SaveScreenImg.CheckedChanged += new System.EventHandler(this.ckb_SaveScreenImg_CheckedChanged);
+            this.rg_R_bgr.AutoSize = true;
+            this.rg_R_bgr.Location = new System.Drawing.Point(117, 116);
+            this.rg_R_bgr.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_R_bgr.Name = "rg_R_bgr";
+            this.rg_R_bgr.Size = new System.Drawing.Size(51, 21);
+            this.rg_R_bgr.TabIndex = 16;
+            this.rg_R_bgr.Text = "BGR";
+            this.rg_R_bgr.UseVisualStyleBackColor = true;
+            this.rg_R_bgr.CheckedChanged += new System.EventHandler(this.rg_R_CheckedChanged);
+            // 
+            // rg_R_Grey
+            // 
+            this.rg_R_Grey.AutoSize = true;
+            this.rg_R_Grey.Location = new System.Drawing.Point(177, 116);
+            this.rg_R_Grey.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_R_Grey.Name = "rg_R_Grey";
+            this.rg_R_Grey.Size = new System.Drawing.Size(62, 21);
+            this.rg_R_Grey.TabIndex = 16;
+            this.rg_R_Grey.Text = "灰度图";
+            this.rg_R_Grey.UseVisualStyleBackColor = true;
+            this.rg_R_Grey.CheckedChanged += new System.EventHandler(this.rg_R_CheckedChanged);
+            // 
+            // rg_R_HSV
+            // 
+            this.rg_R_HSV.AutoSize = true;
+            this.rg_R_HSV.Location = new System.Drawing.Point(247, 116);
+            this.rg_R_HSV.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_R_HSV.Name = "rg_R_HSV";
+            this.rg_R_HSV.Size = new System.Drawing.Size(50, 21);
+            this.rg_R_HSV.TabIndex = 17;
+            this.rg_R_HSV.Text = "HSV";
+            this.rg_R_HSV.UseVisualStyleBackColor = true;
+            this.rg_R_HSV.CheckedChanged += new System.EventHandler(this.rg_R_CheckedChanged);
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(12, 118);
+            this.label17.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(92, 17);
+            this.label17.TabIndex = 18;
+            this.label17.Text = "截图处理格式：";
             // 
             // frm_Index
             // 
@@ -903,6 +957,10 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.CheckBox ckb_ShowLogFrm;
         private System.Windows.Forms.CheckBox ckb_SaveScreenImg;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.RadioButton rg_R_HSV;
+        private System.Windows.Forms.RadioButton rg_R_Grey;
+        private System.Windows.Forms.RadioButton rg_R_bgr;
     }
 }
 
