@@ -289,7 +289,7 @@ namespace TFD_DJ_LUNA
                 else
                 {
                     // MessageShowList.SendEventMsg("未检测到任何图案", 3);
-                    SaveScreenImg(scImg, dtestr, "不匹配的截图");
+                   // SaveScreenImg(scImg, dtestr, "不匹配的截图");
                 }
                 #endregion
 
