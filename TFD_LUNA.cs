@@ -21,11 +21,6 @@ namespace TFD_DJ_LUNA
         public int Mode { get; set; }
 
         /// <summary>
-        /// opencv识图对比模式 0默认 1灰度图 2HSV
-        /// </summary>
-        public int OpencvMode { get; set; } = 2;
-
-        /// <summary>
         /// 是否保存屏幕截图，缺省值false
         /// </summary>
         public bool SaveScreenShot { get; set; } = false;
@@ -110,13 +105,11 @@ namespace TFD_DJ_LUNA
             RecognizeSetting_Crosshair = new RecognizeSetting("自瞄准星图案识别设置");
             RecognizeSetting_MuseBar = new RecognizeSetting("灵感条图案识别设置");
 
-            OpencvMode = int.TryParse(Common.GetIniParamVal("菱形图案识别设置", "OpencvMode"), out int _opencvMode) ? _opencvMode : 2;
-
             Rectangle screenBounds = SystemInformation.VirtualScreen;
             if (RecognizeSetting_Rhombus.Area.Width <= 0 || RecognizeSetting_Rhombus.Area.Height <= 0)
             {
                 int SearchAreaW = 80;
-                int SearchAreaH = 75;
+                int SearchAreaH = 70;
                 int SearchAreaX = (screenBounds.Width - SearchAreaW) / 2;
                 int SearchAreaY = screenBounds.Height / 2 + 5;
                 RecognizeSetting_Rhombus.Area = new Rectangle(SearchAreaX, SearchAreaY, SearchAreaW, SearchAreaH);
@@ -227,7 +220,7 @@ namespace TFD_DJ_LUNA
                     Rectangle screenBounds = SystemInformation.VirtualScreen;
 
                     int SearchAreaW = 80;
-                    int SearchAreaH = 75;
+                    int SearchAreaH = 70;
 
                     int SearchAreaX = (screenBounds.Width - SearchAreaW) / 2;
                     int SearchAreaY = screenBounds.Height / 2 + 5;
@@ -249,21 +242,7 @@ namespace TFD_DJ_LUNA
                 Point pt = new Point(0, 0);
                 bool _userGrey = false;
                 bool _useHSV = false;
-                switch (OpencvMode)
-                {
-                    case 0:
-                        _userGrey = false;
-                        _useHSV = false;
-                        break;
-                    case 1:
-                        _userGrey = true;
-                        _useHSV = false;
-                        break;
-                    case 2:
-                        _userGrey = false;
-                        _useHSV = true;
-                        break;
-                }
+                GetRecgnizearams(RecognizeSetting_Rhombus.OpencvMode, out _userGrey, out _useHSV);
 
                 #region
                 if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
@@ -289,7 +268,7 @@ namespace TFD_DJ_LUNA
                 else
                 {
                     // MessageShowList.SendEventMsg("未检测到任何图案", 3);
-                   // SaveScreenImg(scImg, dtestr, "不匹配的截图");
+                    // SaveScreenImg(scImg, dtestr, "不匹配的截图");
                 }
                 #endregion
 
@@ -355,6 +334,35 @@ namespace TFD_DJ_LUNA
             catch { }
         }
 
+        /// <summary>
+        /// 获取截图处理模式参数
+        /// </summary>
+        /// <param name="_OpencvMode"></param>
+        /// <param name="_userGrey"></param>
+        /// <param name="_useHSV"></param>
+        private void GetRecgnizearams(int _OpencvMode, out bool _userGrey, out bool _useHSV)
+        {
+            _userGrey = false;
+            _useHSV = false;
+            switch (_OpencvMode)
+            {
+                case 0:
+                    _userGrey = false;
+                    _useHSV = false;
+                    break;
+                case 1:
+                    _userGrey = true;
+                    _useHSV = false;
+                    break;
+                case 2:
+                    _userGrey = false;
+                    _useHSV = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         #region 上buff工具人
         /// <summary>
         /// 识别到菱形图案后按键形式 【0 手动切换只按C或V；1交替自动按CV两个技能按键】
@@ -391,6 +399,16 @@ namespace TFD_DJ_LUNA
         /// 灵感条是否已经充满
         /// </summary>
         bool MusebarFull = false;
+
+        /// <summary>
+        /// 上次按下的强化技能按键
+        /// </summary>
+        private string LastFullKey = "";
+        /// <summary>
+        /// 是否等待手动使用第二个强化技能
+        /// </summary>
+        private bool WaitFor2NDFull = false;
+
         public void Assist()
         {
             try
@@ -402,7 +420,7 @@ namespace TFD_DJ_LUNA
                 if (RecognizeSetting_Rhombus.Area.Width <= 0 || RecognizeSetting_Rhombus.Area.Height <= 0)
                 {
                     int SearchAreaW = 80;
-                    int SearchAreaH = 75;
+                    int SearchAreaH = 70;
 
                     int SearchAreaX = (screenBounds.Width - SearchAreaW) / 2;
                     int SearchAreaY = screenBounds.Height / 2 + 5;
@@ -422,61 +440,67 @@ namespace TFD_DJ_LUNA
 
                 //MessageShowList.SendEventMsg(string.Format("ManualSPSKILL={0},MusebarFull={1}", ManualSPSKILL, MusebarFull), 1);
 
-                if (ManualSPSKILL != 0)
+                //if (ManualSPSKILL != 0)
+                //{
+                #region 截取灵感条图案区域
+                Bitmap MuseBarImg;
+                if (RecognizeSetting_MuseBar.Area.Width <= 0 || RecognizeSetting_MuseBar.Area.Height <= 0)
                 {
-                    #region 截取灵感条图案区域
-                    Bitmap MuseBarImg;
-                    if (RecognizeSetting_MuseBar.Area.Width <= 0 || RecognizeSetting_MuseBar.Area.Height <= 0)
+                    int SearchAreaW = 80;
+                    int SearchAreaX = screenBounds.Width / 2 + 120;
+                    int SearchAreaY = screenBounds.Height - 90;
+                    int SearchAreaH = screenBounds.Height - SearchAreaY;
+
+                    Rectangle rt = new Rectangle(SearchAreaX, SearchAreaY, SearchAreaW, SearchAreaH);
+                    MuseBarImg = ScreenPatternDetector.CaptureScreen(rt);
+
+                    Common.SaveIniParamVal("灵感条图案识别设置", "X", SearchAreaX.ToString());
+                    Common.SaveIniParamVal("灵感条图案识别设置", "Y", SearchAreaY.ToString());
+                    Common.SaveIniParamVal("灵感条图案识别设置", "W", SearchAreaW.ToString());
+                    Common.SaveIniParamVal("灵感条图案识别设置", "H", SearchAreaH.ToString());
+                }
+                else
+                    MuseBarImg = ScreenPatternDetector.CaptureScreen(RecognizeSetting_MuseBar.Area);
+                string dtestrMB = DateTime.Now.ToString("HH_mm_ss_ffff");
+                #endregion
+
+                Point pt0 = new Point(0, 0);
+                //if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, false, RecognizeSetting_MuseBar.Threshold, useHSV: true))
+                // if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, true, RecognizeSetting_MuseBar.Threshold, useHSV: false))
+                if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, false, RecognizeSetting_MuseBar.Threshold, useHSV: false))
+                {
+                    MusebarFull = true;
+
+                    #region 灵感条充满 等待手动使用强化技能或者自动强化技能
+                    if (ManualSPSKILL != 1)
                     {
-                        int SearchAreaW = 510;
-                        int SearchAreaX = (screenBounds.Width - SearchAreaW) / 2;
-                        int SearchAreaY = screenBounds.Height - 20;
-                        int SearchAreaH = screenBounds.Height - SearchAreaY;
+                        #region 自动强化技能
+                        SaveScreenImg(MuseBarImg, dtestrMB, "辅助流菱形识别区截屏");
 
-                        Rectangle rt = new Rectangle(SearchAreaX, SearchAreaY, SearchAreaW, SearchAreaH);
-                        MuseBarImg = ScreenPatternDetector.CaptureScreen(rt);
+                        string thisFullKey = string.IsNullOrWhiteSpace(LastFullKey) || LastFullKey == "C" ? "Z" : "C";
+                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，将按下{1}，{2}", pt0, thisFullKey, dtestrMB), 1);
+                        byte key1 = GlobalParams.GetKeyCode(thisFullKey);
+                        SendKBM.SendKeyPress(key1);
+                        if (thisFullKey == "Z")
+                            WaitFor2NDFull = true;
+                        else
+                            WaitFor2NDFull = false;
 
-                        Common.SaveIniParamVal("灵感条图案识别设置", "X", SearchAreaX.ToString());
-                        Common.SaveIniParamVal("灵感条图案识别设置", "Y", SearchAreaY.ToString());
-                        Common.SaveIniParamVal("灵感条图案识别设置", "W", SearchAreaW.ToString());
-                        Common.SaveIniParamVal("灵感条图案识别设置", "H", SearchAreaH.ToString());
+                        MusebarFull = false;
+                        #endregion
                     }
-                    else
-                        MuseBarImg = ScreenPatternDetector.CaptureScreen(RecognizeSetting_MuseBar.Area);
-                    string dtestrMB = DateTime.Now.ToString("HH_mm_ss_ffff");
                     #endregion
 
-                    Point pt0 = new Point(0, 0);
-                    //if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, false, RecognizeSetting_MuseBar.Threshold, useHSV: true))
-                      // if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, true, RecognizeSetting_MuseBar.Threshold, useHSV: false))
-                  if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, false, RecognizeSetting_MuseBar.Threshold, useHSV: false))
-                    {
-                        MusebarFull = true;
-
-                        #region 灵感条充满 等待手动使用强化技能或者自动强化技能
-                        if (ManualSPSKILL != 1)
-                        {
-                            SaveScreenImg(MuseBarImg, dtestrMB, "辅助流菱形识别区截屏");
-                            #region 自动强化技能
-                            MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，将按下{1}，{2}", pt0, "Z", dtestrMB), 1);
-                            byte key1 = GlobalParams.GetKeyCode("Z");
-                            SendKBM.SendKeyPress(key1);
-
-                            MusebarFull = false;
-                            #endregion
-                        }
-                        #endregion
-
-                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，请手动使用强化技能，{1}", pt0, dtestrMB), 1);
-                        //string imgname = string.Format("{2}\\满灵感条图案区域\\{0}_{1}.png", DateTime.Now.ToString("yy_MM_ddTHH_mm_ss_ffff"),new Random().Next(), rootPath);
-                        //MuseBarImg.Save(imgname,ImageFormat.Png);
-                    }
-                    else
-                    {
-                        MusebarFull = false;
-                        //MessageShowList.SendEventMsg("未检测到满灵感条图案", 3);
-                    }
+                    MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，请手动使用强化技能，{1}", pt0, dtestrMB), 1);
+                    //string imgname = string.Format("{2}\\满灵感条图案区域\\{0}_{1}.png", DateTime.Now.ToString("yy_MM_ddTHH_mm_ss_ffff"),new Random().Next(), rootPath);
+                    //MuseBarImg.Save(imgname,ImageFormat.Png);
                 }
+                else
+                {
+                    MusebarFull = false;
+                    //MessageShowList.SendEventMsg("未检测到满灵感条图案", 3);
+                }
+                // }
 
                 if (ManualSPSKILL == 0 || !MusebarFull)
                 {
@@ -484,21 +508,7 @@ namespace TFD_DJ_LUNA
 
                     bool _userGrey = false;
                     bool _useHSV = false;
-                    switch (OpencvMode)
-                    {
-                        case 0:
-                            _userGrey = false;
-                            _useHSV = false;
-                            break;
-                        case 1:
-                            _userGrey = true;
-                            _useHSV = false;
-                            break;
-                        case 2:
-                            _userGrey = false;
-                            _useHSV = true;
-                            break;
-                    }
+                    GetRecgnizearams(RecognizeSetting_Rhombus.OpencvMode, out _userGrey, out _useHSV);
 
                     #region 灵感条未充满或者不等待手动干预， 识别截图是否有菱形图案，并按下对应按键
                     if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
@@ -588,6 +598,10 @@ namespace TFD_DJ_LUNA
         /// 识别阈值，范围0-1，默认0.5
         /// </summary>
         public double Threshold { get; set; } = 0.5;
+        /// <summary>
+        /// opencv识图对比模式 0默认 1灰度图 2HSV
+        /// </summary>
+        public int OpencvMode { get; set; } = 0;
 
         public string IniSectionName = "";
         public RecognizeSetting() { }
@@ -620,6 +634,7 @@ namespace TFD_DJ_LUNA
             string W = Common.GetIniParamVal(sectionName, "W");
             string H = Common.GetIniParamVal(sectionName, "H");
             string threshold = Common.GetIniParamVal(sectionName, "Threshold");
+            string OpencvModeStr = Common.GetIniParamVal(sectionName, "OpencvMode");
 
             this.Area = new Rectangle(
                 int.TryParse(X, out int x) ? x : 0,
@@ -634,7 +649,16 @@ namespace TFD_DJ_LUNA
             }
             else
             {
-                this.Threshold = 0.5; // 默认值
+                this.Threshold = 0.55; // 默认值
+            }
+
+            if (int.TryParse(OpencvModeStr, out int opencvMode) && opencvMode >= 0 && opencvMode <= 2)
+            {
+                this.OpencvMode = opencvMode;
+            }
+            else
+            {
+                this.OpencvMode = 0; // 默认值
             }
         }
     }

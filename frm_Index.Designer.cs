@@ -36,7 +36,6 @@
             this.rg_SWT_2 = new System.Windows.Forms.RadioButton();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.ckb_ManualSPSKILL = new System.Windows.Forms.CheckBox();
-            this.swb_EditPage = new TFD_DJ_LUNA.SwitchBar();
             this.gb_Noise = new System.Windows.Forms.GroupBox();
             this.gb_Assist = new System.Windows.Forms.GroupBox();
             this.btn_Switch = new System.Windows.Forms.Button();
@@ -46,6 +45,10 @@
             this.rb_CandV = new System.Windows.Forms.RadioButton();
             this.rb_CorV = new System.Windows.Forms.RadioButton();
             this.gb_R = new System.Windows.Forms.GroupBox();
+            this.label17 = new System.Windows.Forms.Label();
+            this.rg_R_HSV = new System.Windows.Forms.RadioButton();
+            this.rg_R_Grey = new System.Windows.Forms.RadioButton();
+            this.rg_R_bgr = new System.Windows.Forms.RadioButton();
             this.btn_Recog_R = new System.Windows.Forms.Button();
             this.lb_THD_R = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -85,10 +88,11 @@
             this.rb_Mode_Noise = new System.Windows.Forms.RadioButton();
             this.rb_Mode_Assist = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.rg_R_bgr = new System.Windows.Forms.RadioButton();
-            this.rg_R_Grey = new System.Windows.Forms.RadioButton();
-            this.rg_R_HSV = new System.Windows.Forms.RadioButton();
-            this.label17 = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.rg_MB_HSV = new System.Windows.Forms.RadioButton();
+            this.rg_MB_Grey = new System.Windows.Forms.RadioButton();
+            this.rg_MB_bgr = new System.Windows.Forms.RadioButton();
+            this.swb_EditPage = new TFD_DJ_LUNA.SwitchBar();
             this.gb_Noise.SuspendLayout();
             this.gb_Assist.SuspendLayout();
             this.gb_R.SuspendLayout();
@@ -160,30 +164,6 @@
             this.toolTip1.SetToolTip(this.ckb_ManualSPSKILL, "灵感条充满后等待手动使用强化技能");
             this.ckb_ManualSPSKILL.UseVisualStyleBackColor = true;
             this.ckb_ManualSPSKILL.CheckedChanged += new System.EventHandler(this.ckb_ManualSPSKILL_CheckedChanged);
-            // 
-            // swb_EditPage
-            // 
-            this.swb_EditPage.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.swb_EditPage.Location = new System.Drawing.Point(16, 13);
-            this.swb_EditPage.Margin = new System.Windows.Forms.Padding(4);
-            this.swb_EditPage.Name = "swb_EditPage";
-            this.swb_EditPage.Size = new System.Drawing.Size(44, 20);
-            this.swb_EditPage.swb_BackColorOff = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(244)))), ((int)(((byte)(245)))));
-            this.swb_EditPage.swb_BackColorOn = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(220)))), ((int)(((byte)(244)))));
-            this.swb_EditPage.swb_BarColorBottom = System.Drawing.Color.FromArgb(((int)(((byte)(221)))), ((int)(((byte)(222)))), ((int)(((byte)(227)))));
-            this.swb_EditPage.swb_BarColorTop = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
-            this.swb_EditPage.swb_BarSpacing = 2F;
-            this.swb_EditPage.swb_BorderCorlor = System.Drawing.Color.FromArgb(((int)(((byte)(185)))), ((int)(((byte)(186)))), ((int)(((byte)(195)))));
-            this.swb_EditPage.swb_BorderRadius = 8;
-            this.swb_EditPage.swb_BorderThickness = 1;
-            this.swb_EditPage.swb_OffText = "查看";
-            this.swb_EditPage.swb_OnText = "编辑";
-            this.swb_EditPage.swb_TextDistance = 5F;
-            this.swb_EditPage.swb_TextPosition = TFD_DJ_LUNA.SwitchBar.StateTextPositon.None;
-            this.swb_EditPage.SwitchState = false;
-            this.swb_EditPage.TabIndex = 10;
-            this.toolTip1.SetToolTip(this.swb_EditPage, "切换页面【查看/编辑】状态");
-            this.swb_EditPage.StateChanged += new TFD_DJ_LUNA.SwitchBar.ClickedBarDelegate(this.swb_EditPage_StateChanged);
             // 
             // gb_Noise
             // 
@@ -321,6 +301,52 @@
             this.gb_R.TabStop = false;
             this.gb_R.Text = "菱形图案识别区域";
             // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(12, 115);
+            this.label17.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(92, 17);
+            this.label17.TabIndex = 18;
+            this.label17.Text = "截图处理格式：";
+            // 
+            // rg_R_HSV
+            // 
+            this.rg_R_HSV.AutoSize = true;
+            this.rg_R_HSV.Location = new System.Drawing.Point(247, 113);
+            this.rg_R_HSV.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_R_HSV.Name = "rg_R_HSV";
+            this.rg_R_HSV.Size = new System.Drawing.Size(50, 21);
+            this.rg_R_HSV.TabIndex = 17;
+            this.rg_R_HSV.Text = "HSV";
+            this.rg_R_HSV.UseVisualStyleBackColor = true;
+            this.rg_R_HSV.CheckedChanged += new System.EventHandler(this.rg_R_CheckedChanged);
+            // 
+            // rg_R_Grey
+            // 
+            this.rg_R_Grey.AutoSize = true;
+            this.rg_R_Grey.Location = new System.Drawing.Point(177, 113);
+            this.rg_R_Grey.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_R_Grey.Name = "rg_R_Grey";
+            this.rg_R_Grey.Size = new System.Drawing.Size(62, 21);
+            this.rg_R_Grey.TabIndex = 16;
+            this.rg_R_Grey.Text = "灰度图";
+            this.rg_R_Grey.UseVisualStyleBackColor = true;
+            this.rg_R_Grey.CheckedChanged += new System.EventHandler(this.rg_R_CheckedChanged);
+            // 
+            // rg_R_bgr
+            // 
+            this.rg_R_bgr.AutoSize = true;
+            this.rg_R_bgr.Location = new System.Drawing.Point(117, 113);
+            this.rg_R_bgr.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_R_bgr.Name = "rg_R_bgr";
+            this.rg_R_bgr.Size = new System.Drawing.Size(51, 21);
+            this.rg_R_bgr.TabIndex = 16;
+            this.rg_R_bgr.Text = "BGR";
+            this.rg_R_bgr.UseVisualStyleBackColor = true;
+            this.rg_R_bgr.CheckedChanged += new System.EventHandler(this.rg_R_CheckedChanged);
+            // 
             // btn_Recog_R
             // 
             this.btn_Recog_R.BackColor = System.Drawing.Color.SlateGray;
@@ -365,7 +391,7 @@
             this.tb_RY.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tb_RY.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tb_RY.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tb_RY.Location = new System.Drawing.Point(184, 36);
+            this.tb_RY.Location = new System.Drawing.Point(184, 27);
             this.tb_RY.Name = "tb_RY";
             this.tb_RY.Size = new System.Drawing.Size(60, 16);
             this.tb_RY.TabIndex = 11;
@@ -377,7 +403,7 @@
             this.tb_RX.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tb_RX.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tb_RX.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tb_RX.Location = new System.Drawing.Point(117, 36);
+            this.tb_RX.Location = new System.Drawing.Point(117, 27);
             this.tb_RX.Name = "tb_RX";
             this.tb_RX.Size = new System.Drawing.Size(60, 16);
             this.tb_RX.TabIndex = 11;
@@ -390,7 +416,7 @@
             this.tb_RH.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tb_RH.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tb_RH.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tb_RH.Location = new System.Drawing.Point(117, 88);
+            this.tb_RH.Location = new System.Drawing.Point(117, 79);
             this.tb_RH.Name = "tb_RH";
             this.tb_RH.Size = new System.Drawing.Size(60, 16);
             this.tb_RH.TabIndex = 10;
@@ -402,7 +428,7 @@
             this.tb_RW.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tb_RW.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tb_RW.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tb_RW.Location = new System.Drawing.Point(117, 62);
+            this.tb_RW.Location = new System.Drawing.Point(117, 53);
             this.tb_RW.Name = "tb_RW";
             this.tb_RW.Size = new System.Drawing.Size(60, 16);
             this.tb_RW.TabIndex = 10;
@@ -418,7 +444,7 @@
             this.btn_PickArea_R.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.btn_PickArea_R.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_PickArea_R.ForeColor = System.Drawing.Color.White;
-            this.btn_PickArea_R.Location = new System.Drawing.Point(288, 36);
+            this.btn_PickArea_R.Location = new System.Drawing.Point(288, 27);
             this.btn_PickArea_R.Margin = new System.Windows.Forms.Padding(4);
             this.btn_PickArea_R.Name = "btn_PickArea_R";
             this.btn_PickArea_R.Size = new System.Drawing.Size(72, 26);
@@ -443,7 +469,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(12, 88);
+            this.label5.Location = new System.Drawing.Point(12, 79);
             this.label5.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(92, 17);
@@ -453,7 +479,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(12, 62);
+            this.label4.Location = new System.Drawing.Point(12, 53);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(92, 17);
@@ -463,7 +489,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 36);
+            this.label2.Location = new System.Drawing.Point(12, 27);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(104, 17);
@@ -473,7 +499,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(174, 36);
+            this.label7.Location = new System.Drawing.Point(174, 27);
             this.label7.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(20, 17);
@@ -482,6 +508,10 @@
             // 
             // gb_MB
             // 
+            this.gb_MB.Controls.Add(this.label18);
+            this.gb_MB.Controls.Add(this.rg_MB_HSV);
+            this.gb_MB.Controls.Add(this.rg_MB_Grey);
+            this.gb_MB.Controls.Add(this.rg_MB_bgr);
             this.gb_MB.Controls.Add(this.btn_Recog_MB);
             this.gb_MB.Controls.Add(this.lb_THD_MB);
             this.gb_MB.Controls.Add(this.label9);
@@ -513,7 +543,7 @@
             this.btn_Recog_MB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.LightSteelBlue;
             this.btn_Recog_MB.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_Recog_MB.ForeColor = System.Drawing.Color.White;
-            this.btn_Recog_MB.Location = new System.Drawing.Point(291, 128);
+            this.btn_Recog_MB.Location = new System.Drawing.Point(291, 140);
             this.btn_Recog_MB.Margin = new System.Windows.Forms.Padding(4);
             this.btn_Recog_MB.Name = "btn_Recog_MB";
             this.btn_Recog_MB.Size = new System.Drawing.Size(69, 25);
@@ -526,7 +556,7 @@
             // lb_THD_MB
             // 
             this.lb_THD_MB.AutoSize = true;
-            this.lb_THD_MB.Location = new System.Drawing.Point(328, 161);
+            this.lb_THD_MB.Location = new System.Drawing.Point(328, 173);
             this.lb_THD_MB.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lb_THD_MB.Name = "lb_THD_MB";
             this.lb_THD_MB.Size = new System.Drawing.Size(32, 17);
@@ -536,7 +566,7 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(12, 132);
+            this.label9.Location = new System.Drawing.Point(12, 144);
             this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(116, 17);
@@ -548,7 +578,7 @@
             this.tb_MBY.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tb_MBY.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tb_MBY.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tb_MBY.Location = new System.Drawing.Point(184, 34);
+            this.tb_MBY.Location = new System.Drawing.Point(184, 27);
             this.tb_MBY.Name = "tb_MBY";
             this.tb_MBY.Size = new System.Drawing.Size(60, 16);
             this.tb_MBY.TabIndex = 11;
@@ -560,7 +590,7 @@
             this.tb_MBX.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tb_MBX.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tb_MBX.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tb_MBX.Location = new System.Drawing.Point(117, 34);
+            this.tb_MBX.Location = new System.Drawing.Point(117, 27);
             this.tb_MBX.Name = "tb_MBX";
             this.tb_MBX.Size = new System.Drawing.Size(60, 16);
             this.tb_MBX.TabIndex = 11;
@@ -572,7 +602,7 @@
             this.tb_MBH.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tb_MBH.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tb_MBH.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tb_MBH.Location = new System.Drawing.Point(117, 86);
+            this.tb_MBH.Location = new System.Drawing.Point(117, 79);
             this.tb_MBH.Name = "tb_MBH";
             this.tb_MBH.Size = new System.Drawing.Size(60, 16);
             this.tb_MBH.TabIndex = 10;
@@ -584,7 +614,7 @@
             this.tb_MBW.BackColor = System.Drawing.Color.WhiteSmoke;
             this.tb_MBW.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tb_MBW.Font = new System.Drawing.Font("微软雅黑", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.tb_MBW.Location = new System.Drawing.Point(117, 60);
+            this.tb_MBW.Location = new System.Drawing.Point(117, 53);
             this.tb_MBW.Name = "tb_MBW";
             this.tb_MBW.Size = new System.Drawing.Size(60, 16);
             this.tb_MBW.TabIndex = 10;
@@ -600,7 +630,7 @@
             this.btn_PickArea_MB.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
             this.btn_PickArea_MB.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btn_PickArea_MB.ForeColor = System.Drawing.Color.White;
-            this.btn_PickArea_MB.Location = new System.Drawing.Point(288, 34);
+            this.btn_PickArea_MB.Location = new System.Drawing.Point(288, 27);
             this.btn_PickArea_MB.Margin = new System.Windows.Forms.Padding(4);
             this.btn_PickArea_MB.Name = "btn_PickArea_MB";
             this.btn_PickArea_MB.Size = new System.Drawing.Size(72, 26);
@@ -612,7 +642,7 @@
             // tkb_MB
             // 
             this.tkb_MB.AutoSize = false;
-            this.tkb_MB.Location = new System.Drawing.Point(8, 159);
+            this.tkb_MB.Location = new System.Drawing.Point(8, 171);
             this.tkb_MB.Margin = new System.Windows.Forms.Padding(4);
             this.tkb_MB.Maximum = 100;
             this.tkb_MB.Name = "tkb_MB";
@@ -625,7 +655,7 @@
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(12, 86);
+            this.label10.Location = new System.Drawing.Point(12, 79);
             this.label10.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(92, 17);
@@ -635,7 +665,7 @@
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(12, 60);
+            this.label11.Location = new System.Drawing.Point(12, 53);
             this.label11.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(92, 17);
@@ -645,7 +675,7 @@
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(12, 34);
+            this.label12.Location = new System.Drawing.Point(12, 27);
             this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(104, 17);
@@ -655,7 +685,7 @@
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(174, 34);
+            this.label13.Location = new System.Drawing.Point(174, 27);
             this.label13.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(20, 17);
@@ -816,51 +846,75 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "运行日志";
             // 
-            // rg_R_bgr
+            // label18
             // 
-            this.rg_R_bgr.AutoSize = true;
-            this.rg_R_bgr.Location = new System.Drawing.Point(117, 116);
-            this.rg_R_bgr.Margin = new System.Windows.Forms.Padding(4);
-            this.rg_R_bgr.Name = "rg_R_bgr";
-            this.rg_R_bgr.Size = new System.Drawing.Size(51, 21);
-            this.rg_R_bgr.TabIndex = 16;
-            this.rg_R_bgr.Text = "BGR";
-            this.rg_R_bgr.UseVisualStyleBackColor = true;
-            this.rg_R_bgr.CheckedChanged += new System.EventHandler(this.rg_R_CheckedChanged);
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(12, 112);
+            this.label18.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(92, 17);
+            this.label18.TabIndex = 22;
+            this.label18.Text = "截图处理格式：";
             // 
-            // rg_R_Grey
+            // rg_MB_HSV
             // 
-            this.rg_R_Grey.AutoSize = true;
-            this.rg_R_Grey.Location = new System.Drawing.Point(177, 116);
-            this.rg_R_Grey.Margin = new System.Windows.Forms.Padding(4);
-            this.rg_R_Grey.Name = "rg_R_Grey";
-            this.rg_R_Grey.Size = new System.Drawing.Size(62, 21);
-            this.rg_R_Grey.TabIndex = 16;
-            this.rg_R_Grey.Text = "灰度图";
-            this.rg_R_Grey.UseVisualStyleBackColor = true;
-            this.rg_R_Grey.CheckedChanged += new System.EventHandler(this.rg_R_CheckedChanged);
+            this.rg_MB_HSV.AutoSize = true;
+            this.rg_MB_HSV.Location = new System.Drawing.Point(247, 110);
+            this.rg_MB_HSV.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_MB_HSV.Name = "rg_MB_HSV";
+            this.rg_MB_HSV.Size = new System.Drawing.Size(50, 21);
+            this.rg_MB_HSV.TabIndex = 21;
+            this.rg_MB_HSV.Text = "HSV";
+            this.rg_MB_HSV.UseVisualStyleBackColor = true;
+            this.rg_MB_HSV.CheckedChanged += new System.EventHandler(this.rg_MB_Changed);
             // 
-            // rg_R_HSV
+            // rg_MB_Grey
             // 
-            this.rg_R_HSV.AutoSize = true;
-            this.rg_R_HSV.Location = new System.Drawing.Point(247, 116);
-            this.rg_R_HSV.Margin = new System.Windows.Forms.Padding(4);
-            this.rg_R_HSV.Name = "rg_R_HSV";
-            this.rg_R_HSV.Size = new System.Drawing.Size(50, 21);
-            this.rg_R_HSV.TabIndex = 17;
-            this.rg_R_HSV.Text = "HSV";
-            this.rg_R_HSV.UseVisualStyleBackColor = true;
-            this.rg_R_HSV.CheckedChanged += new System.EventHandler(this.rg_R_CheckedChanged);
+            this.rg_MB_Grey.AutoSize = true;
+            this.rg_MB_Grey.Location = new System.Drawing.Point(177, 110);
+            this.rg_MB_Grey.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_MB_Grey.Name = "rg_MB_Grey";
+            this.rg_MB_Grey.Size = new System.Drawing.Size(62, 21);
+            this.rg_MB_Grey.TabIndex = 19;
+            this.rg_MB_Grey.Text = "灰度图";
+            this.rg_MB_Grey.UseVisualStyleBackColor = true;
+            this.rg_MB_Grey.CheckedChanged += new System.EventHandler(this.rg_MB_Changed);
             // 
-            // label17
+            // rg_MB_bgr
             // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(12, 118);
-            this.label17.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(92, 17);
-            this.label17.TabIndex = 18;
-            this.label17.Text = "截图处理格式：";
+            this.rg_MB_bgr.AutoSize = true;
+            this.rg_MB_bgr.Location = new System.Drawing.Point(117, 110);
+            this.rg_MB_bgr.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_MB_bgr.Name = "rg_MB_bgr";
+            this.rg_MB_bgr.Size = new System.Drawing.Size(51, 21);
+            this.rg_MB_bgr.TabIndex = 20;
+            this.rg_MB_bgr.Text = "BGR";
+            this.rg_MB_bgr.UseVisualStyleBackColor = true;
+            this.rg_MB_bgr.CheckedChanged += new System.EventHandler(this.rg_MB_Changed);
+            // 
+            // swb_EditPage
+            // 
+            this.swb_EditPage.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.swb_EditPage.Location = new System.Drawing.Point(16, 13);
+            this.swb_EditPage.Margin = new System.Windows.Forms.Padding(4);
+            this.swb_EditPage.Name = "swb_EditPage";
+            this.swb_EditPage.Size = new System.Drawing.Size(44, 20);
+            this.swb_EditPage.swb_BackColorOff = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(244)))), ((int)(((byte)(245)))));
+            this.swb_EditPage.swb_BackColorOn = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(220)))), ((int)(((byte)(244)))));
+            this.swb_EditPage.swb_BarColorBottom = System.Drawing.Color.FromArgb(((int)(((byte)(221)))), ((int)(((byte)(222)))), ((int)(((byte)(227)))));
+            this.swb_EditPage.swb_BarColorTop = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.swb_EditPage.swb_BarSpacing = 2F;
+            this.swb_EditPage.swb_BorderCorlor = System.Drawing.Color.FromArgb(((int)(((byte)(185)))), ((int)(((byte)(186)))), ((int)(((byte)(195)))));
+            this.swb_EditPage.swb_BorderRadius = 8;
+            this.swb_EditPage.swb_BorderThickness = 1;
+            this.swb_EditPage.swb_OffText = "查看";
+            this.swb_EditPage.swb_OnText = "编辑";
+            this.swb_EditPage.swb_TextDistance = 5F;
+            this.swb_EditPage.swb_TextPosition = TFD_DJ_LUNA.SwitchBar.StateTextPositon.None;
+            this.swb_EditPage.SwitchState = false;
+            this.swb_EditPage.TabIndex = 10;
+            this.toolTip1.SetToolTip(this.swb_EditPage, "切换页面【查看/编辑】状态");
+            this.swb_EditPage.StateChanged += new TFD_DJ_LUNA.SwitchBar.ClickedBarDelegate(this.swb_EditPage_StateChanged);
             // 
             // frm_Index
             // 
@@ -961,6 +1015,10 @@
         private System.Windows.Forms.RadioButton rg_R_HSV;
         private System.Windows.Forms.RadioButton rg_R_Grey;
         private System.Windows.Forms.RadioButton rg_R_bgr;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.RadioButton rg_MB_HSV;
+        private System.Windows.Forms.RadioButton rg_MB_Grey;
+        private System.Windows.Forms.RadioButton rg_MB_bgr;
     }
 }
 

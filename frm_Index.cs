@@ -105,7 +105,7 @@ namespace TFD_DJ_LUNA
 
             ckb_ManualSPSKILL.Checked = tFD_LUNA.ManualSPSKILL == 1;
 
-            switch(tFD_LUNA.OpencvMode)
+            switch (tFD_LUNA.RecognizeSetting_Rhombus.OpencvMode)
             {
                 case 0:
                     rg_R_bgr.Checked = true;
@@ -137,6 +137,22 @@ namespace TFD_DJ_LUNA
                 tb_MBW.Text = tFD_LUNA.RecognizeSetting_MuseBar.Area.Width.ToString();
                 tb_MBH.Text = tFD_LUNA.RecognizeSetting_MuseBar.Area.Height.ToString();
                 tkb_MB.Value = (int)(tFD_LUNA.RecognizeSetting_MuseBar.Threshold * 100);
+            }
+
+            switch (tFD_LUNA.RecognizeSetting_MuseBar.OpencvMode)
+            {
+                case 0:
+                    rg_MB_bgr.Checked = true;
+                    break;
+                case 1:
+                    rg_MB_Grey.Checked = true;
+                    break;
+                case 2:
+                    rg_MB_HSV.Checked = true;
+                    break;
+                default:
+                    rg_MB_bgr.Checked = true;
+                    break;
             }
 
         }
@@ -186,6 +202,11 @@ namespace TFD_DJ_LUNA
             catch { }
         }
 
+        /// <summary>
+        /// 日志消息显示事件处理函数
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="noticeLevel"></param>
         private void MessageShowList_SendNotice(string msg, int noticeLevel)
         {
             try
@@ -206,6 +227,11 @@ namespace TFD_DJ_LUNA
 
         }
 
+        /// <summary>
+        /// 窗体被释放时，取消钩子监听并停止打碟助手线程
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_Disposed(object sender, EventArgs e)
         {
             UnHookSanner();
@@ -217,11 +243,19 @@ namespace TFD_DJ_LUNA
             }
         }
 
+        /// <summary>
+        /// 编辑页面状态改变事件，切换页面只读或可编辑状态
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void swb_EditPage_StateChanged(object sender, EventArgs e)
         {
             PageEditable = !PageEditable;
             SetReadonly();
         }
+        /// <summary>
+        /// 设置控件为只读或可编辑状态
+        /// </summary>
         private void SetReadonly()
         {
             tb_HotKey_Global.ReadOnly = !PageEditable;
@@ -252,6 +286,11 @@ namespace TFD_DJ_LUNA
 
         }
 
+        /// <summary>
+        /// 复选框状态改变事件，显示或隐藏日志窗口
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ckb_ShowLogFrm_CheckedChanged(object sender, EventArgs e)
         {
             if (ckb_ShowLogFrm.Checked)
@@ -646,6 +685,11 @@ namespace TFD_DJ_LUNA
 
         #endregion
 
+        /// <summary>
+        /// 手动设置灵感条满了需要手动使用强化技能
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ckb_ManualSPSKILL_CheckedChanged(object sender, EventArgs e)
         {
             if (ckb_ManualSPSKILL.Checked)
@@ -661,6 +705,11 @@ namespace TFD_DJ_LUNA
             Common.SaveIniParamVal("辅助流设置", "ManualSPSKILL", tFD_LUNA.ManualSPSKILL.ToString());
         }
 
+        /// <summary>
+        /// 手动输入数值设置截图间隔
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tb_ScreenShotInterval_TextChanged(object sender, EventArgs e)
         {
             if (int.TryParse(tb_ScreenShotInterval.Text, out int interval) && interval > 0)
@@ -675,6 +724,11 @@ namespace TFD_DJ_LUNA
             }
         }
 
+        /// <summary>
+        /// 手动输入数值设置菱形图案识别区域
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Tb_PA_R_Changed(object sender, EventArgs e)
         {
             if (int.TryParse(tb_RX.Text, out int x) &&
@@ -694,6 +748,11 @@ namespace TFD_DJ_LUNA
             }
         }
 
+        /// <summary>
+        /// 手动输入数值设置灵感条图案识别区域
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Tb_PA_MB_Changed(object sender, EventArgs e)
         {
             if (int.TryParse(tb_MBX.Text, out int x) &&
@@ -713,20 +772,30 @@ namespace TFD_DJ_LUNA
             }
         }
 
+        /// <summary>
+        /// 启用/禁用截图保存功能
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ckb_SaveScreenImg_CheckedChanged(object sender, EventArgs e)
         {
-            if(ckb_SaveScreenImg.Checked)
+            if (ckb_SaveScreenImg.Checked)
             {
                 tFD_LUNA.SaveScreenShot = true;
                 MessageShowList.SendEventMsg("已启用截图保存功能", 1);
             }
             else
             {
-                tFD_LUNA.SaveScreenShot=false;
+                tFD_LUNA.SaveScreenShot = false;
                 MessageShowList.SendEventMsg("已禁用截图保存功能", 1);
-            }  
+            }
         }
 
+        /// <summary>
+        /// 菱形图案识别图像处理模式切换事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void rg_R_CheckedChanged(object sender, EventArgs e)
         {
             RadioButton rb = sender as RadioButton;
@@ -749,13 +818,47 @@ namespace TFD_DJ_LUNA
                 opencvImgMode = 2;
             }
 
-            if(tFD_LUNA!=null)
+            if (tFD_LUNA != null)
             {
-                tFD_LUNA.OpencvMode = opencvImgMode;
+                tFD_LUNA.RecognizeSetting_Rhombus.OpencvMode = opencvImgMode;
                 Common.SaveIniParamVal("菱形图案识别设置", "OpencvMode", opencvImgMode.ToString());
             }
 
             MessageShowList.SendEventMsg("已切换OpenCV图像处理模式: " + _modename, 1);
+        }
+
+        /// <summary>
+        /// 灵感条图像处理模式切换事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void rg_MB_Changed(object sender, EventArgs e)
+        {
+            RadioButton rb = sender as RadioButton;
+            if (!rb.Checked)
+                return;
+            int opencvImgMode = 0;
+            string _modename = rb.Text;
+
+            if (rg_MB_bgr.Checked)
+            {
+                opencvImgMode = 0;
+            }
+            else if (rg_MB_Grey.Checked)
+            {
+                opencvImgMode = 1;
+            }
+            else if (rg_MB_HSV.Checked)
+            {
+                opencvImgMode = 2;
+            }
+
+            if (tFD_LUNA != null)
+            {
+                tFD_LUNA.RecognizeSetting_MuseBar.OpencvMode = opencvImgMode;
+                Common.SaveIniParamVal("灵感条图案识别设置", "OpencvMode", opencvImgMode.ToString());
+            }
+            MessageShowList.SendEventMsg("已切换灵感条图像处理模式: " + _modename, 1);
         }
     }
 }
