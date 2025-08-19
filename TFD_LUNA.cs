@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading;
@@ -37,6 +38,61 @@ namespace TFD_DJ_LUNA
         /// 灵感条识别区域设置
         /// </summary>
         public RecognizeSetting RecognizeSetting_MuseBar { get; set; }
+
+        /// <summary>
+        /// 技能按键映射字典
+        /// </summary>
+        public static Dictionary<string, string> dicSkillKey = new Dictionary<string, string>()
+        {
+            { "Q", "Q" },
+            { "C", "C" },
+            { "V", "V" },
+            { "Z", "Z" }
+        };
+        /// <summary>
+        /// 加载技能按键映射
+        /// </summary>
+        public static void LoaddicSkillKey()
+        {
+            try
+            {
+                string _k = Common.GetIniParamVal("技能按键映射", "Q");
+                string key_Q = string.IsNullOrWhiteSpace(_k) ? "Q" : _k;
+                if (!dicSkillKey.ContainsKey("Q"))
+                    dicSkillKey.Add("Q", key_Q);
+                else
+                    dicSkillKey["Q"] = key_Q;
+
+                _k = Common.GetIniParamVal("技能按键映射", "C");
+                string key_C = string.IsNullOrWhiteSpace(_k) ? "C" : _k;
+                if (!dicSkillKey.ContainsKey("C"))
+                    dicSkillKey.Add("C", key_C);
+                else
+                    dicSkillKey["C"] = key_C;
+
+                _k = Common.GetIniParamVal("技能按键映射", "V");
+                string key_V = string.IsNullOrWhiteSpace(_k) ? "V" : _k;
+                if (!dicSkillKey.ContainsKey("V"))
+                    dicSkillKey.Add("V", key_V);
+                else
+                    dicSkillKey["V"] = key_V;
+
+                _k = Common.GetIniParamVal("技能按键映射", "Z");
+                string key_Z = string.IsNullOrWhiteSpace(_k) ? "Z" : _k;
+                if (!dicSkillKey.ContainsKey("Z"))
+                    dicSkillKey.Add("Z", key_Z);
+                else
+                    dicSkillKey["Z"] = key_Z;
+
+                MessageShowList.SendEventMsg(string.Format("已加载技能按键映射:Q={0},C={1},V={2},Z={3}."
+                    , dicSkillKey["Q"], dicSkillKey["C"], dicSkillKey["V"], dicSkillKey["Z"]));
+            }
+            catch (Exception ex)
+            {
+                MessageShowList.SendEventMsg("加载技能按键映射失败: " + ex.Message, 1);
+            }
+        }
+
 
         /// <summary>
         /// 是否正在运行
@@ -84,6 +140,7 @@ namespace TFD_DJ_LUNA
 
         public TFD_LUNA()
         {
+            LoaddicSkillKey();
             loadIni();
             init();
         }
@@ -288,9 +345,19 @@ namespace TFD_DJ_LUNA
             {
                 if (SwitchType_Noise == 0)
                 {
-                    MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}，{3}", pt, key, imgNum, dtestr), 1);
-                    byte key1 = GlobalParams.GetKeyCode(key);
-                    SendKBM.SendKeyPress(key1);
+                    string actualKey = dicSkillKey.ContainsKey(key) ? dicSkillKey[key] : key;//实际的按键
+                    MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}，{3}", pt, actualKey, imgNum, dtestr), 1);
+
+                    switch (actualKey)
+                    {
+                        case "LBUTTON": SendKBM.MouseLeftClick(); break;
+                        case "RBUTTON": SendKBM.MouseRightClick(); break;
+                        case "MBUTTON": SendKBM.MouseMiddleClick(); break;
+                        default:
+                            byte key1 = GlobalParams.GetKeyCode(actualKey);
+                            SendKBM.SendKeyPress(key1);
+                            break;
+                    }
                 }
                 else
                 {
@@ -304,9 +371,22 @@ namespace TFD_DJ_LUNA
                         default: { _keycode = "C"; break; }
                     }
 
-                    MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}，{3}", pt, _keycode, imgNum, dtestr), 1);
-                    byte key1 = GlobalParams.GetKeyCode(_keycode);
-                    SendKBM.SendKeyPress(key1);
+                    string actualKey = dicSkillKey.ContainsKey(_keycode) ? dicSkillKey[_keycode] : _keycode;//实际的按键
+                    MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}，{3}", pt, actualKey, imgNum, dtestr), 1);
+
+                    switch (actualKey)
+                    {
+                        case "LBUTTON": SendKBM.MouseLeftClick(); break;
+                        case "RBUTTON": SendKBM.MouseRightClick(); break;
+                        case "MBUTTON": SendKBM.MouseMiddleClick(); break;
+                        default:
+                            byte key1 = GlobalParams.GetKeyCode(actualKey);
+                            SendKBM.SendKeyPress(key1);
+                            break;
+                    }
+
+                    //byte key1 = GlobalParams.GetKeyCode(actualKey);
+                    //SendKBM.SendKeyPress(key1);
                     LaskKey_Noise = LaskKey_Noise >= 3 ? 1 : LaskKey_Noise + 1;
                 }
             }
@@ -389,7 +469,10 @@ namespace TFD_DJ_LUNA
                     CurrentKey_Assist = 1;
                     break;
             }
-            MessageShowList.SendEventMsg(string.Format("辅助流当前按下的按键已切换为: {0}", CurrentKey_Assist == 1 ? "C" : "V"), 1);
+
+            string cka = CurrentKey_Assist == 1 ? "C" : "V";
+            string actualKey = dicSkillKey.ContainsKey(cka) ? dicSkillKey[cka] : cka;//实际的按键
+            MessageShowList.SendEventMsg(string.Format("辅助流当前按下的按键已切换为: {0}", actualKey), 1);
         }
         /// <summary>
         /// 噪音涌动输出流上次按下的按键 1C 2V 
@@ -478,9 +561,22 @@ namespace TFD_DJ_LUNA
                         SaveScreenImg(MuseBarImg, dtestrMB, "辅助流菱形识别区截屏");
 
                         string thisFullKey = string.IsNullOrWhiteSpace(LastFullKey) || LastFullKey == "C" ? "Z" : "C";
-                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，将按下{1}，{2}", pt0, thisFullKey, dtestrMB), 1);
-                        byte key1 = GlobalParams.GetKeyCode(thisFullKey);
-                        SendKBM.SendKeyPress(key1);
+                        string actualFullKey = dicSkillKey.ContainsKey(thisFullKey) ? dicSkillKey[thisFullKey] : thisFullKey;//实际的按键
+                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，将按下{1}，{2}", pt0, actualFullKey, dtestrMB), 1);
+
+                        switch (actualFullKey)
+                        {
+                            case "LBUTTON": SendKBM.MouseLeftClick(); break;
+                            case "RBUTTON": SendKBM.MouseRightClick(); break;
+                            case "MBUTTON": SendKBM.MouseMiddleClick(); break;
+                            default:
+                                byte key1 = GlobalParams.GetKeyCode(actualFullKey);
+                                SendKBM.SendKeyPress(key1);
+                                break;
+                        }
+
+                        //byte key1 = GlobalParams.GetKeyCode(actualFullKey);
+                        //SendKBM.SendKeyPress(key1);
                         if (thisFullKey == "Z")
                             WaitFor2NDFull = true;
                         else
@@ -574,9 +670,22 @@ namespace TFD_DJ_LUNA
                     }
                 }
 
-                MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}\t{3}", pt, _keycode, imgNum, dtestr), 1);
-                byte key1 = GlobalParams.GetKeyCode(_keycode);
-                SendKBM.SendKeyPress(key1);
+                string actualKey = dicSkillKey.ContainsKey(_keycode) ? dicSkillKey[_keycode] : _keycode;//实际的按键
+                MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}\t{3}", pt, actualKey, imgNum, dtestr), 1);
+
+                switch (actualKey)
+                {
+                    case "LBUTTON": SendKBM.MouseLeftClick(); break;
+                    case "RBUTTON": SendKBM.MouseRightClick(); break;
+                    case "MBUTTON": SendKBM.MouseMiddleClick(); break;
+                    default:
+                        byte key1 = GlobalParams.GetKeyCode(actualKey);
+                        SendKBM.SendKeyPress(key1);
+                        break;
+                }
+
+                //byte key1 = GlobalParams.GetKeyCode(actualKey);
+                //SendKBM.SendKeyPress(key1);
             }
             catch (Exception ex)
             {

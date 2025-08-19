@@ -63,6 +63,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.gb_MB = new System.Windows.Forms.GroupBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.rg_MB_HSV = new System.Windows.Forms.RadioButton();
+            this.rg_MB_Grey = new System.Windows.Forms.RadioButton();
+            this.rg_MB_bgr = new System.Windows.Forms.RadioButton();
             this.btn_Recog_MB = new System.Windows.Forms.Button();
             this.lb_THD_MB = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
@@ -88,10 +92,7 @@
             this.rb_Mode_Noise = new System.Windows.Forms.RadioButton();
             this.rb_Mode_Assist = new System.Windows.Forms.RadioButton();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label18 = new System.Windows.Forms.Label();
-            this.rg_MB_HSV = new System.Windows.Forms.RadioButton();
-            this.rg_MB_Grey = new System.Windows.Forms.RadioButton();
-            this.rg_MB_bgr = new System.Windows.Forms.RadioButton();
+            this.btn_SetKeyMatch = new System.Windows.Forms.Button();
             this.swb_EditPage = new TFD_DJ_LUNA.SwitchBar();
             this.gb_Noise.SuspendLayout();
             this.gb_Assist.SuspendLayout();
@@ -534,6 +535,52 @@
             this.gb_MB.TabStop = false;
             this.gb_MB.Text = "灵感条识别区域";
             // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(12, 112);
+            this.label18.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(92, 17);
+            this.label18.TabIndex = 22;
+            this.label18.Text = "截图处理格式：";
+            // 
+            // rg_MB_HSV
+            // 
+            this.rg_MB_HSV.AutoSize = true;
+            this.rg_MB_HSV.Location = new System.Drawing.Point(247, 110);
+            this.rg_MB_HSV.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_MB_HSV.Name = "rg_MB_HSV";
+            this.rg_MB_HSV.Size = new System.Drawing.Size(50, 21);
+            this.rg_MB_HSV.TabIndex = 21;
+            this.rg_MB_HSV.Text = "HSV";
+            this.rg_MB_HSV.UseVisualStyleBackColor = true;
+            this.rg_MB_HSV.CheckedChanged += new System.EventHandler(this.rg_MB_Changed);
+            // 
+            // rg_MB_Grey
+            // 
+            this.rg_MB_Grey.AutoSize = true;
+            this.rg_MB_Grey.Location = new System.Drawing.Point(177, 110);
+            this.rg_MB_Grey.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_MB_Grey.Name = "rg_MB_Grey";
+            this.rg_MB_Grey.Size = new System.Drawing.Size(62, 21);
+            this.rg_MB_Grey.TabIndex = 19;
+            this.rg_MB_Grey.Text = "灰度图";
+            this.rg_MB_Grey.UseVisualStyleBackColor = true;
+            this.rg_MB_Grey.CheckedChanged += new System.EventHandler(this.rg_MB_Changed);
+            // 
+            // rg_MB_bgr
+            // 
+            this.rg_MB_bgr.AutoSize = true;
+            this.rg_MB_bgr.Location = new System.Drawing.Point(117, 110);
+            this.rg_MB_bgr.Margin = new System.Windows.Forms.Padding(4);
+            this.rg_MB_bgr.Name = "rg_MB_bgr";
+            this.rg_MB_bgr.Size = new System.Drawing.Size(51, 21);
+            this.rg_MB_bgr.TabIndex = 20;
+            this.rg_MB_bgr.Text = "BGR";
+            this.rg_MB_bgr.UseVisualStyleBackColor = true;
+            this.rg_MB_bgr.CheckedChanged += new System.EventHandler(this.rg_MB_Changed);
+            // 
             // btn_Recog_MB
             // 
             this.btn_Recog_MB.BackColor = System.Drawing.Color.SlateGray;
@@ -846,51 +893,23 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "运行日志";
             // 
-            // label18
+            // btn_SetKeyMatch
             // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(12, 112);
-            this.label18.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(92, 17);
-            this.label18.TabIndex = 22;
-            this.label18.Text = "截图处理格式：";
-            // 
-            // rg_MB_HSV
-            // 
-            this.rg_MB_HSV.AutoSize = true;
-            this.rg_MB_HSV.Location = new System.Drawing.Point(247, 110);
-            this.rg_MB_HSV.Margin = new System.Windows.Forms.Padding(4);
-            this.rg_MB_HSV.Name = "rg_MB_HSV";
-            this.rg_MB_HSV.Size = new System.Drawing.Size(50, 21);
-            this.rg_MB_HSV.TabIndex = 21;
-            this.rg_MB_HSV.Text = "HSV";
-            this.rg_MB_HSV.UseVisualStyleBackColor = true;
-            this.rg_MB_HSV.CheckedChanged += new System.EventHandler(this.rg_MB_Changed);
-            // 
-            // rg_MB_Grey
-            // 
-            this.rg_MB_Grey.AutoSize = true;
-            this.rg_MB_Grey.Location = new System.Drawing.Point(177, 110);
-            this.rg_MB_Grey.Margin = new System.Windows.Forms.Padding(4);
-            this.rg_MB_Grey.Name = "rg_MB_Grey";
-            this.rg_MB_Grey.Size = new System.Drawing.Size(62, 21);
-            this.rg_MB_Grey.TabIndex = 19;
-            this.rg_MB_Grey.Text = "灰度图";
-            this.rg_MB_Grey.UseVisualStyleBackColor = true;
-            this.rg_MB_Grey.CheckedChanged += new System.EventHandler(this.rg_MB_Changed);
-            // 
-            // rg_MB_bgr
-            // 
-            this.rg_MB_bgr.AutoSize = true;
-            this.rg_MB_bgr.Location = new System.Drawing.Point(117, 110);
-            this.rg_MB_bgr.Margin = new System.Windows.Forms.Padding(4);
-            this.rg_MB_bgr.Name = "rg_MB_bgr";
-            this.rg_MB_bgr.Size = new System.Drawing.Size(51, 21);
-            this.rg_MB_bgr.TabIndex = 20;
-            this.rg_MB_bgr.Text = "BGR";
-            this.rg_MB_bgr.UseVisualStyleBackColor = true;
-            this.rg_MB_bgr.CheckedChanged += new System.EventHandler(this.rg_MB_Changed);
+            this.btn_SetKeyMatch.BackColor = System.Drawing.Color.SlateGray;
+            this.btn_SetKeyMatch.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btn_SetKeyMatch.FlatAppearance.BorderSize = 0;
+            this.btn_SetKeyMatch.FlatAppearance.MouseDownBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.btn_SetKeyMatch.FlatAppearance.MouseOverBackColor = System.Drawing.Color.LightSteelBlue;
+            this.btn_SetKeyMatch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btn_SetKeyMatch.ForeColor = System.Drawing.Color.White;
+            this.btn_SetKeyMatch.Location = new System.Drawing.Point(90, 12);
+            this.btn_SetKeyMatch.Margin = new System.Windows.Forms.Padding(4);
+            this.btn_SetKeyMatch.Name = "btn_SetKeyMatch";
+            this.btn_SetKeyMatch.Size = new System.Drawing.Size(69, 24);
+            this.btn_SetKeyMatch.TabIndex = 16;
+            this.btn_SetKeyMatch.Text = "按键设置";
+            this.btn_SetKeyMatch.UseVisualStyleBackColor = false;
+            this.btn_SetKeyMatch.Click += new System.EventHandler(this.btn_SetKeyMatch_Click);
             // 
             // swb_EditPage
             // 
@@ -922,6 +941,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1052, 462);
+            this.Controls.Add(this.btn_SetKeyMatch);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.swb_EditPage);
             this.Controls.Add(this.gb_MB);
@@ -1019,6 +1039,7 @@
         private System.Windows.Forms.RadioButton rg_MB_HSV;
         private System.Windows.Forms.RadioButton rg_MB_Grey;
         private System.Windows.Forms.RadioButton rg_MB_bgr;
+        private System.Windows.Forms.Button btn_SetKeyMatch;
     }
 }
 

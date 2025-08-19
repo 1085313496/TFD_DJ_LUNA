@@ -65,6 +65,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DicItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DicItem.Designer.cs">
+      <DependentUpon>DicItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frm_AllKeys.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frm_AllKeys.Designer.cs">
+      <DependentUpon>frm_AllKeys.cs</DependentUpon>
+    </Compile>
     <Compile Include="frm_Index.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -82,6 +94,12 @@
     </Compile>
     <Compile Include="frm_PickArea.Designer.cs">
       <DependentUpon>frm_PickArea.cs</DependentUpon>
+    </Compile>
+    <Compile Include="frm_SetKeyMatch.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frm_SetKeyMatch.Designer.cs">
+      <DependentUpon>frm_SetKeyMatch.cs</DependentUpon>
     </Compile>
     <Compile Include="GlobalParams.cs" />
     <Compile Include="KeyboardHook.cs" />
@@ -106,6 +124,12 @@
     <Compile Include="Tools\Common.cs" />
     <Compile Include="Tools\INIFile.cs" />
     <Compile Include="Tools\MessageShowList.cs" />
+    <EmbeddedResource Include="DicItem.resx">
+      <DependentUpon>DicItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_AllKeys.resx">
+      <DependentUpon>frm_AllKeys.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frm_Index.resx">
       <DependentUpon>frm_Index.cs</DependentUpon>
     </EmbeddedResource>
@@ -114,6 +138,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frm_PickArea.resx">
       <DependentUpon>frm_PickArea.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frm_SetKeyMatch.resx">
+      <DependentUpon>frm_SetKeyMatch.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

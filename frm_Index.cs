@@ -860,5 +860,29 @@ namespace TFD_DJ_LUNA
             }
             MessageShowList.SendEventMsg("已切换灵感条图像处理模式: " + _modename, 1);
         }
+
+        private void btn_SetKeyMatch_Click(object sender, EventArgs e) { OpenKeyMatchForm(); }
+        /// <summary>
+        /// 打开按键映射设置窗口
+        /// </summary>
+        private void OpenKeyMatchForm()
+        {
+
+            foreach (Form f in Application.OpenForms)
+            {
+                if (f.Name == "frm_SetKeyMatch")
+                {
+                    f.Show();
+                    f.WindowState = FormWindowState.Normal;
+                    f.BringToFront();
+                    return;
+                }
+            }
+
+            frm_SetKeyMatch fskm = new frm_SetKeyMatch();
+            fskm.Show();
+            fskm.BringToFront();
+
+        }
     }
 }
