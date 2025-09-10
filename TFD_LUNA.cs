@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using TFD_DJ_LUNA.Tools;
@@ -17,7 +18,7 @@ namespace TFD_DJ_LUNA
         /// </summary>
         public int ScreenShotInterval = 123;
         /// <summary>
-        /// 运行类型 1噪音涌动输出流 2辅助流 缺省值1
+        /// 运行类型 1噪音涌动输出流 2辅助流 3战地演唱会 缺省值1
         /// </summary>
         public int Mode { get; set; }
 
@@ -38,6 +39,14 @@ namespace TFD_DJ_LUNA
         /// 灵感条识别区域设置
         /// </summary>
         public RecognizeSetting RecognizeSetting_MuseBar { get; set; }
+        /// <summary>
+        /// 战地演唱会左箭头识别区
+        /// </summary>
+        public RecognizeSetting RS_BFS_L { get; set; }
+        /// <summary>
+        /// 战地演唱会右箭头识别区
+        /// </summary>
+        public RecognizeSetting RS_BFS_R { get; set; }
 
         /// <summary>
         /// 技能按键映射字典
@@ -99,6 +108,7 @@ namespace TFD_DJ_LUNA
         /// </summary>
         public bool IsRunning { get; set; } = false;
 
+        #region  各模板图片
         /// <summary>
         /// 按Q之后的黄色菱形图案
         /// </summary>
@@ -125,6 +135,41 @@ namespace TFD_DJ_LUNA
         public Bitmap Crosshair;
 
         /// <summary>
+        /// 战地演唱会左箭头_Q
+        /// </summary>
+        public Bitmap BFS_L_Q;
+        /// <summary>
+        /// 战地演唱会左箭头_C
+        /// </summary>
+        public Bitmap BFS_L_C;
+        /// <summary>
+        /// 战地演唱会左箭头_V
+        /// </summary>
+        public Bitmap BFS_L_V;
+        /// <summary>
+        /// 战地演唱会左箭头_Z
+        /// </summary>
+        public Bitmap BFS_L_Z;
+
+        /// <summary>
+        /// 战地演唱会右箭头_Q
+        /// </summary>
+        public Bitmap BFS_R_Q;
+        /// <summary>
+        /// 战地演唱会右箭头_C
+        /// </summary>
+        public Bitmap BFS_R_C;
+        /// <summary>
+        /// 战地演唱会右箭头_V
+        /// </summary>
+        public Bitmap BFS_R_V;
+        /// <summary>
+        /// 战地演唱会右箭头_Z
+        /// </summary>
+        public Bitmap BFS_R_Z;
+        #endregion
+
+        /// <summary>
         /// 灵感条满之后是否等待手动使用强化技能 [0不等待 1等待 2自动使用双强化 缺省值1]
         /// </summary>
         public int ManualSPSKILL { get; set; }
@@ -145,6 +190,92 @@ namespace TFD_DJ_LUNA
             init();
         }
 
+
+        /// <summary>
+        /// 开启识别功能
+        /// </summary>
+        public void Start()
+        {
+            try
+            {
+                loadIni();
+                init();
+
+                if (Mode == 3)
+                {
+                    //BFSC_Stop();
+                    //Thread.Sleep(100);
+                    //BFSC_Start();
+                    BFS_R_Start();
+                }
+                else
+                {
+                    th = new Thread(new ThreadStart(() =>
+                    {
+                        IsRunning = true;
+                        while (IsRunning)
+                        {
+                            switch (Mode)
+                            {
+                                case 2: Assist(); break;
+                                case 3:
+                                case 1:
+                                default: Noise(); break;
+                            }
+
+                            Thread.Sleep(ScreenShotInterval);
+                        }
+                    }));
+                    th.IsBackground = true;
+                    th.Start();
+                }
+            }
+            catch { }
+        }
+        /// <summary>
+        /// 停止识别功能
+        /// </summary>
+        public void Stop()
+        {
+            try
+            {
+                IsRunning = false;
+
+                if (Mode == 3)
+                {
+                    //BFSC_Stop();
+                    BFS_R_Stop();
+                }
+                else
+                {
+                    if (th != null && th.IsAlive)
+                    {
+                        th.Join();
+                        th = null;
+                    }
+                }
+
+                #region 释放图片模板资源
+                if (d_0 != null) d_0.Dispose();
+                if (d_1 != null) d_1.Dispose();
+                if (d_2 != null) d_2.Dispose();
+                if (d_3 != null) d_3.Dispose();
+
+                if (BFS_L_Q != null) BFS_L_Q.Dispose();
+                if (BFS_L_C != null) BFS_L_C.Dispose();
+                if (BFS_L_V != null) BFS_L_V.Dispose();
+                if (BFS_L_Z != null) BFS_L_Z.Dispose();
+
+                if (BFS_R_Q != null) BFS_R_Q.Dispose();
+                if (BFS_R_C != null) BFS_R_C.Dispose();
+                if (BFS_R_V != null) BFS_R_V.Dispose();
+                if (BFS_R_Z != null) BFS_R_Z.Dispose();
+                #endregion
+            }
+            catch { }
+        }
+
+
         /// <summary>
         /// 从INI文件加载配置
         /// </summary>
@@ -158,17 +289,24 @@ namespace TFD_DJ_LUNA
             ManualSPSKILL = int.TryParse(Common.GetIniParamVal("辅助流设置", "ManualSPSKILL"), out int manualSPSKILL) ? manualSPSKILL : 1;
             SwitchType_Assist = int.TryParse(Common.GetIniParamVal("辅助流设置", "SwitchType_Assist"), out int switchTypeAssist) ? switchTypeAssist : 1;
 
+            BFS_R_Interval = int.TryParse(Common.GetIniParamVal("战地演唱会设置", "BFS_R_Interval"), out int i1) ? i1 : 120;
+            CVZ_CX_time = int.TryParse(Common.GetIniParamVal("战地演唱会设置", "CVZ_CX_time"), out int i2) ? i2 : 15000;
+            PowerfulTime = int.TryParse(Common.GetIniParamVal("战地演唱会设置", "PowerfulTime"), out int i3) ? i3 : 14100;
+            AutoPowerfulSkill = int.TryParse(Common.GetIniParamVal("战地演唱会设置", "AutoPowerfulSkill"), out int apf) ? apf : 0;
+
             RecognizeSetting_Rhombus = new RecognizeSetting("菱形图案识别设置");
             RecognizeSetting_Crosshair = new RecognizeSetting("自瞄准星图案识别设置");
             RecognizeSetting_MuseBar = new RecognizeSetting("灵感条图案识别设置");
 
-            Rectangle screenBounds = SystemInformation.VirtualScreen;
+            RS_BFS_L = new RecognizeSetting("战地演唱会识别设置_左");
+            RS_BFS_R = new RecognizeSetting("战地演唱会识别设置_右");
+
             if (RecognizeSetting_Rhombus.Area.Width <= 0 || RecognizeSetting_Rhombus.Area.Height <= 0)
             {
                 int SearchAreaW = 80;
                 int SearchAreaH = 70;
-                int SearchAreaX = (screenBounds.Width - SearchAreaW) / 2;
-                int SearchAreaY = screenBounds.Height / 2 + 5;
+                int SearchAreaX = (Common.ScreenSize.Width - SearchAreaW) / 2;
+                int SearchAreaY = Common.ScreenSize.Height / 2 + 5;
                 RecognizeSetting_Rhombus.Area = new Rectangle(SearchAreaX, SearchAreaY, SearchAreaW, SearchAreaH);
 
                 Common.SaveIniParamVal("菱形图案识别设置", "X", SearchAreaX.ToString());
@@ -177,7 +315,6 @@ namespace TFD_DJ_LUNA
                 Common.SaveIniParamVal("菱形图案识别设置", "H", SearchAreaH.ToString());
             }
         }
-
         /// <summary>
         /// 初始化识别图案
         /// </summary>
@@ -191,64 +328,40 @@ namespace TFD_DJ_LUNA
                 d_3 = new Bitmap(string.Format("{0}\\imgs\\tfdlunadj\\lunadj3.png", rootPath));
                 MuseBar = new Bitmap(string.Format("{0}\\imgs\\tfdlunadj\\ln_lgt.png", rootPath));
                 Crosshair = new Bitmap(string.Format("{0}\\imgs\\tfdlunadj\\ln_zx.png", rootPath));
+
+                BFS_L_Q = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_L_Q.png", rootPath));
+                BFS_L_C = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_L_C.png", rootPath));
+                BFS_L_V = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_L_V.png", rootPath));
+                BFS_L_Z = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_L_Z.png", rootPath));
+
+                BFS_R_Q = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_R_Q.png", rootPath));
+                BFS_R_C = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_R_C.png", rootPath));
+                BFS_R_V = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_R_V.png", rootPath));
+                BFS_R_Z = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_R_Z.png", rootPath));
             }
             catch (Exception ex)
             {
                 MessageShowList.SendEventMsg("初始化识别图案失败: " + ex.Message, 1);
             }
         }
-
         /// <summary>
-        /// 开启识别功能
+        /// 保存截图到文件
         /// </summary>
-        public void Start()
+        /// <param name="img"></param>
+        /// <param name="DateInfo"></param>
+        /// <param name="Foldername"></param>
+        private void SaveScreenImg(Bitmap img, string DateInfo, string Foldername = "截屏")
         {
             try
             {
-                loadIni();
-                init();
+                if (!SaveScreenShot)
+                    return;
 
-                th = new Thread(new ThreadStart(() =>
-                {
-                    IsRunning = true;
-                    while (IsRunning)
-                    {
-                        if (Mode == 1)
-                            Noise();
-                        else
-                            Assist();
+                string Dir = string.Format("{0}\\{1}", rootPath, Foldername);
+                if (!System.IO.Directory.Exists(Dir))
+                    System.IO.Directory.CreateDirectory(Dir);
 
-                        Thread.Sleep(ScreenShotInterval);
-                    }
-                }));
-                th.IsBackground = true;
-                th.Start();
-            }
-            catch { }
-        }
-        /// <summary>
-        /// 停止识别功能
-        /// </summary>
-        public void Stop()
-        {
-            try
-            {
-                IsRunning = false;
-
-                if (th != null && th.IsAlive)
-                {
-                    th.Join();
-                    th = null;
-                }
-
-                if (d_0 != null)
-                    d_0.Dispose();
-                if (d_1 != null)
-                    d_1.Dispose();
-                if (d_2 != null)
-                    d_2.Dispose();
-                if (d_3 != null)
-                    d_3.Dispose();
+                img.Save(string.Format("{0}\\{1}_0.png", Dir, DateInfo), ImageFormat.Png);
             }
             catch { }
         }
@@ -274,13 +387,11 @@ namespace TFD_DJ_LUNA
                 Bitmap scImg;
                 if (RecognizeSetting_Rhombus.Area.Width <= 0 || RecognizeSetting_Rhombus.Area.Height <= 0)
                 {
-                    Rectangle screenBounds = SystemInformation.VirtualScreen;
-
                     int SearchAreaW = 80;
                     int SearchAreaH = 70;
 
-                    int SearchAreaX = (screenBounds.Width - SearchAreaW) / 2;
-                    int SearchAreaY = screenBounds.Height / 2 + 5;
+                    int SearchAreaX = (Common.ScreenSize.Width - SearchAreaW) / 2;
+                    int SearchAreaY = Common.ScreenSize.Height / 2 + 5;
 
                     Rectangle rt = new Rectangle(SearchAreaX, SearchAreaY, SearchAreaW, SearchAreaH);
                     scImg = ScreenPatternDetector.CaptureScreen(rt);
@@ -297,29 +408,26 @@ namespace TFD_DJ_LUNA
 
                 #region 识别截图是否有菱形图案，并按下对应按键
                 Point pt = new Point(0, 0);
-                bool _userGrey = false;
-                bool _useHSV = false;
-                GetRecgnizearams(RecognizeSetting_Rhombus.OpencvMode, out _userGrey, out _useHSV);
-
+                double MaxVal = 0;
                 #region
-                if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
+                if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, out MaxVal, RecognizeSetting_Rhombus.OpencvMode, RecognizeSetting_Rhombus.Threshold))
                 {
-                    Presskey("C", pt, "0", dtestr);
+                    Presskey("C", pt, "0", dtestr, string.Format(",匹配度:{0}", MaxVal.ToString("f3")));
                     SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
-                else if (ScreenPatternDetector.IsPatternPresent(d_1, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
+                else if (ScreenPatternDetector.IsPatternPresent(d_1, scImg, out pt, out MaxVal, RecognizeSetting_Rhombus.OpencvMode, RecognizeSetting_Rhombus.Threshold))
                 {
-                    Presskey("V", pt, "1", dtestr);
+                    Presskey("V", pt, "1", dtestr, string.Format(",匹配度:{0}", MaxVal.ToString("f3")));
                     SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
-                else if (ScreenPatternDetector.IsPatternPresent(d_2, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
+                else if (ScreenPatternDetector.IsPatternPresent(d_2, scImg, out pt, out MaxVal, RecognizeSetting_Rhombus.OpencvMode, RecognizeSetting_Rhombus.Threshold))
                 {
-                    Presskey("Z", pt, "2", dtestr);
+                    Presskey("Z", pt, "2", dtestr, string.Format(",匹配度:{0}", MaxVal.ToString("f3")));
                     SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
-                else if (ScreenPatternDetector.IsPatternPresent(d_3, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
+                else if (ScreenPatternDetector.IsPatternPresent(d_3, scImg, out pt, out MaxVal, RecognizeSetting_Rhombus.OpencvMode, RecognizeSetting_Rhombus.Threshold))
                 {
-                    Presskey("C", pt, "3", dtestr);
+                    Presskey("C", pt, "3", dtestr, string.Format(",匹配度:{0}", MaxVal.ToString("f3")));
                     SaveScreenImg(scImg, dtestr, "噪音涌动菱形识别区截屏");
                 }
                 else
@@ -339,14 +447,14 @@ namespace TFD_DJ_LUNA
         /// <param name="key"></param>
         /// <param name="pt"></param>
         /// <param name="imgNum"></param>
-        private void Presskey(string key, Point pt, string imgNum, string dtestr)
+        private void Presskey(string key, Point pt, string imgNum, string dtestr, string extraInfo = "")
         {
             try
             {
                 if (SwitchType_Noise == 0)
                 {
                     string actualKey = dicSkillKey.ContainsKey(key) ? dicSkillKey[key] : key;//实际的按键
-                    MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}，{3}", pt, actualKey, imgNum, dtestr), 1);
+                    MessageShowList.SendEventMsg(string.Format("检测到图案{2}{4},位置: {0}，将按下{1}，{3}", pt, actualKey, imgNum, dtestr, extraInfo), 1);
 
                     switch (actualKey)
                     {
@@ -372,7 +480,7 @@ namespace TFD_DJ_LUNA
                     }
 
                     string actualKey = dicSkillKey.ContainsKey(_keycode) ? dicSkillKey[_keycode] : _keycode;//实际的按键
-                    MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}，{3}", pt, actualKey, imgNum, dtestr), 1);
+                    MessageShowList.SendEventMsg(string.Format("检测到图案{2}{4},位置: {0}，将按下{1}，{3}", pt, actualKey, imgNum, dtestr, extraInfo), 1);
 
                     switch (actualKey)
                     {
@@ -395,53 +503,7 @@ namespace TFD_DJ_LUNA
                 MessageShowList.SendEventMsg(ex.Message, 1);
             }
         }
-
         #endregion
-
-        private void SaveScreenImg(Bitmap img, string DateInfo, string Foldername = "截屏")
-        {
-            try
-            {
-                if (!SaveScreenShot)
-                    return;
-
-                string Dir = string.Format("{0}\\{1}", rootPath, Foldername);
-                if (!System.IO.Directory.Exists(Dir))
-                    System.IO.Directory.CreateDirectory(Dir);
-
-                img.Save(string.Format("{0}\\{1}_0.png", Dir, DateInfo), ImageFormat.Png);
-            }
-            catch { }
-        }
-
-        /// <summary>
-        /// 获取截图处理模式参数
-        /// </summary>
-        /// <param name="_OpencvMode"></param>
-        /// <param name="_userGrey"></param>
-        /// <param name="_useHSV"></param>
-        private void GetRecgnizearams(int _OpencvMode, out bool _userGrey, out bool _useHSV)
-        {
-            _userGrey = false;
-            _useHSV = false;
-            switch (_OpencvMode)
-            {
-                case 0:
-                    _userGrey = false;
-                    _useHSV = false;
-                    break;
-                case 1:
-                    _userGrey = true;
-                    _useHSV = false;
-                    break;
-                case 2:
-                    _userGrey = false;
-                    _useHSV = true;
-                    break;
-                default:
-                    break;
-            }
-        }
 
         #region 上buff工具人
         /// <summary>
@@ -496,8 +558,6 @@ namespace TFD_DJ_LUNA
         {
             try
             {
-                Rectangle screenBounds = SystemInformation.VirtualScreen;
-
                 #region 截取菱形图案判定成功区域
                 Bitmap scImg;
                 if (RecognizeSetting_Rhombus.Area.Width <= 0 || RecognizeSetting_Rhombus.Area.Height <= 0)
@@ -505,8 +565,8 @@ namespace TFD_DJ_LUNA
                     int SearchAreaW = 80;
                     int SearchAreaH = 70;
 
-                    int SearchAreaX = (screenBounds.Width - SearchAreaW) / 2;
-                    int SearchAreaY = screenBounds.Height / 2 + 5;
+                    int SearchAreaX = (Common.ScreenSize.Width - SearchAreaW) / 2;
+                    int SearchAreaY = Common.ScreenSize.Height / 2 + 5;
 
                     Rectangle rt = new Rectangle(SearchAreaX, SearchAreaY, SearchAreaW, SearchAreaH);
                     scImg = ScreenPatternDetector.CaptureScreen(rt);
@@ -530,9 +590,9 @@ namespace TFD_DJ_LUNA
                 if (RecognizeSetting_MuseBar.Area.Width <= 0 || RecognizeSetting_MuseBar.Area.Height <= 0)
                 {
                     int SearchAreaW = 80;
-                    int SearchAreaX = screenBounds.Width / 2 + 120;
-                    int SearchAreaY = screenBounds.Height - 90;
-                    int SearchAreaH = screenBounds.Height - SearchAreaY;
+                    int SearchAreaX = Common.ScreenSize.Width / 2 + 120;
+                    int SearchAreaY = Common.ScreenSize.Height - 90;
+                    int SearchAreaH = Common.ScreenSize.Height - SearchAreaY;
 
                     Rectangle rt = new Rectangle(SearchAreaX, SearchAreaY, SearchAreaW, SearchAreaH);
                     MuseBarImg = ScreenPatternDetector.CaptureScreen(rt);
@@ -548,9 +608,8 @@ namespace TFD_DJ_LUNA
                 #endregion
 
                 Point pt0 = new Point(0, 0);
-                //if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, false, RecognizeSetting_MuseBar.Threshold, useHSV: true))
-                // if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, true, RecognizeSetting_MuseBar.Threshold, useHSV: false))
-                if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, false, RecognizeSetting_MuseBar.Threshold, useHSV: false))
+                double MaxVal = 0;
+                if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, out MaxVal, RecognizeSetting_MuseBar.OpencvMode, RecognizeSetting_MuseBar.Threshold))
                 {
                     MusebarFull = true;
 
@@ -562,7 +621,7 @@ namespace TFD_DJ_LUNA
 
                         string thisFullKey = string.IsNullOrWhiteSpace(LastFullKey) || LastFullKey == "C" ? "Z" : "C";
                         string actualFullKey = dicSkillKey.ContainsKey(thisFullKey) ? dicSkillKey[thisFullKey] : thisFullKey;//实际的按键
-                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，将按下{1}，{2}", pt0, actualFullKey, dtestrMB), 1);
+                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,匹配度:{3},位置: {0}，将按下{1}，{2}", pt0, actualFullKey, dtestrMB, MaxVal.ToString("f3")), 1);
 
                         switch (actualFullKey)
                         {
@@ -587,9 +646,7 @@ namespace TFD_DJ_LUNA
                     }
                     #endregion
 
-                    MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,位置: {0}，请手动使用强化技能，{1}", pt0, dtestrMB), 1);
-                    //string imgname = string.Format("{2}\\满灵感条图案区域\\{0}_{1}.png", DateTime.Now.ToString("yy_MM_ddTHH_mm_ss_ffff"),new Random().Next(), rootPath);
-                    //MuseBarImg.Save(imgname,ImageFormat.Png);
+                    MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案，匹配度:{2},位置: {0}，请手动使用强化技能，{1}", pt0, dtestrMB, MaxVal.ToString("f3")), 1);
                 }
                 else
                 {
@@ -602,29 +659,25 @@ namespace TFD_DJ_LUNA
                 {
                     Point pt = new Point(0, 0);
 
-                    bool _userGrey = false;
-                    bool _useHSV = false;
-                    GetRecgnizearams(RecognizeSetting_Rhombus.OpencvMode, out _userGrey, out _useHSV);
-
                     #region 灵感条未充满或者不等待手动干预， 识别截图是否有菱形图案，并按下对应按键
-                    if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
+                    if (ScreenPatternDetector.IsPatternPresent(d_0, scImg, out pt, out MaxVal, RecognizeSetting_Rhombus.OpencvMode, RecognizeSetting_Rhombus.Threshold))
                     {
-                        Presskey_Assist(pt, "0", dtestr);
+                        Presskey_Assist(pt, "0", dtestr, string.Format(",匹配度:{0}", MaxVal.ToString("f3")));
                         SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
-                    else if (ScreenPatternDetector.IsPatternPresent(d_1, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
+                    else if (ScreenPatternDetector.IsPatternPresent(d_1, scImg, out pt, out MaxVal, RecognizeSetting_Rhombus.OpencvMode, RecognizeSetting_Rhombus.Threshold))
                     {
-                        Presskey_Assist(pt, "1", dtestr);
+                        Presskey_Assist(pt, "1", dtestr, string.Format(",匹配度:{0}", MaxVal.ToString("f3")));
                         SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
-                    else if (ScreenPatternDetector.IsPatternPresent(d_2, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
+                    else if (ScreenPatternDetector.IsPatternPresent(d_2, scImg, out pt, out MaxVal, RecognizeSetting_Rhombus.OpencvMode, RecognizeSetting_Rhombus.Threshold))
                     {
-                        Presskey_Assist(pt, "2", dtestr);
+                        Presskey_Assist(pt, "2", dtestr, string.Format(",匹配度:{0}", MaxVal.ToString("f3")));
                         SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
-                    else if (ScreenPatternDetector.IsPatternPresent(d_3, scImg, out pt, _userGrey, RecognizeSetting_Rhombus.Threshold, useHSV: _useHSV))
+                    else if (ScreenPatternDetector.IsPatternPresent(d_3, scImg, out pt, out MaxVal, RecognizeSetting_Rhombus.OpencvMode, RecognizeSetting_Rhombus.Threshold))
                     {
-                        Presskey_Assist(pt, "3", dtestr);
+                        Presskey_Assist(pt, "3", dtestr, string.Format(",匹配度:{0}", MaxVal.ToString("f3")));
                         SaveScreenImg(scImg, dtestr, "辅助流菱形识别区截屏");
                     }
                     else
@@ -644,7 +697,7 @@ namespace TFD_DJ_LUNA
         /// <param name="key"></param>
         /// <param name="pt"></param>
         /// <param name="imgNum"></param>
-        private void Presskey_Assist(Point pt, string imgNum, string dtestr)
+        private void Presskey_Assist(Point pt, string imgNum, string dtestr, string extraInfo = "")
         {
             try
             {
@@ -671,7 +724,7 @@ namespace TFD_DJ_LUNA
                 }
 
                 string actualKey = dicSkillKey.ContainsKey(_keycode) ? dicSkillKey[_keycode] : _keycode;//实际的按键
-                MessageShowList.SendEventMsg(string.Format("检测到图案{2},位置: {0}，将按下{1}\t{3}", pt, actualKey, imgNum, dtestr), 1);
+                MessageShowList.SendEventMsg(string.Format("检测到图案{2}{4},位置: {0}，将按下{1}\t{3}", pt, actualKey, imgNum, dtestr, extraInfo), 1);
 
                 switch (actualKey)
                 {
@@ -693,6 +746,422 @@ namespace TFD_DJ_LUNA
             }
         }
         #endregion
+
+
+        #region 战地演唱会
+        /// <summary>
+        /// 战地演唱会主体流程
+        /// </summary>
+        private Thread th_BFSinger_run = null;
+
+        #region 战地演唱会循环体内容  按一轮cvz,然后按住左键
+        /// <summary>
+        /// BFS识图检测并按键线程是否正在运行
+        /// </summary>
+        public bool BFS_R_Running { get; set; } = false;
+        /// <summary>
+        /// BFS识图检测并按键线程 循环时间间隔 ms
+        /// </summary>
+        public int BFS_R_Interval { get; set; } = 120;
+        /// <summary>
+        /// 上次检测到灵感条充满的时间
+        /// </summary>
+        private DateTime LastFullMBTime = DateTime.MinValue;
+        /// <summary>
+        /// CVZ普通技能持续时间
+        /// </summary>
+        public int CVZ_CX_time { get; set; } = (int)(1000 * 15);
+        /// <summary>
+        /// 强化技能持续时间
+        /// </summary>
+        public int PowerfulTime { get; set; } = (int)(1000 * 14.1);
+        /// <summary>
+        /// 是否自动使用强化技能
+        /// </summary>
+        public int AutoPowerfulSkill { get; set; } = 0;
+        /// <summary>
+        /// 上一次按CVZ技能键的时间
+        /// </summary>
+        private DateTime LastSkillCVZTime { get; set; } = DateTime.MinValue;
+        /// <summary>
+        /// 上一次按cvz的次数，到3则重置为0
+        /// </summary>
+        private int LastSkillCVZCount { get; set; } = 0;
+        /// <summary>
+        /// 上一次按下的技能键 0鼠标左键 1C 2V 3Z
+        /// </summary>
+        private int LastBFSKey { get; set; } = -1;
+        /// <summary>
+        /// 上一次按下的技能键[CVZ之一] 1C 2V 3Z
+        /// </summary>
+        private int LastBFSKey_CVZ { get; set; } = -1;
+
+        private void BFS_R_Start()
+        {
+            try
+            {
+                th_BFSinger_run = new Thread(new ThreadStart(() =>
+                {
+                    IsRunning = true;
+                    BFS_R_Running = true;
+                    LastFullMBTime=DateTime.MinValue;
+
+                    while (BFS_R_Running)
+                    {
+                       
+                        //Presskey("LBUTTON");
+                        //Thread.Sleep(105);
+                        //Presskey("C");
+                        // Thread.Sleep(250);
+                        //continue;
+
+                        //灵感条满，跳出
+                        if (CheckMBFullState())
+                            continue;
+
+                        Bitmap bmp_L = ScreenPatternDetector.CaptureScreen(RS_BFS_L.Area);
+                        Bitmap bmp_R = ScreenPatternDetector.CaptureScreen(RS_BFS_R.Area);
+
+                        Point pt_L = new Point(0, 0);
+                        Point pt_R = new Point(0, 0);
+                        double MaxVal = 0;
+                        string dteStrMB = DateTime.Now.ToString("HH_mm_ss_ffff");
+
+                        //SaveScreenImg(bmp_L, dteStrMB, "左箭头");
+                        //SaveScreenImg(bmp_R, dteStrMB, "右箭头");
+
+                        //C技能图片颜色为橙色，不能使用H通道，需更换为S通道
+                        int opencvImgMode_C = RS_BFS_L.OpencvMode == 2 ? 3 : RS_BFS_L.OpencvMode;
+
+                        #region 图片检测并按键
+                        if (ScreenPatternDetector.IsPatternPresent(BFS_L_Q, bmp_L, out pt_L, out MaxVal, RS_BFS_L.OpencvMode, RS_BFS_L.Threshold, RS_BFS_L.Sharpen)
+                            || ScreenPatternDetector.IsPatternPresent(BFS_R_Q, bmp_R, out pt_R, out MaxVal, RS_BFS_R.OpencvMode, RS_BFS_R.Threshold, RS_BFS_R.Sharpen))
+                        {
+                            MessageShowList.SendEventMsg(string.Format("检测到Q技能状态,匹配度:{0},位置:[{1},{2}],[{3},{4}]\t{5}."
+                                , MaxVal.ToString("f3"), pt_L.X, pt_L.Y, pt_R.X, pt_R.Y, dteStrMB), 1);
+
+                            PressKeyCVZ_BFS("Q");
+
+                            SaveScreenImg(bmp_L, dteStrMB, "左箭头_Q");
+                            SaveScreenImg(bmp_R, dteStrMB, "右箭头_Q");
+                        }
+                        else if (ScreenPatternDetector.IsPatternPresent(BFS_L_C, bmp_L, out pt_L, out MaxVal, opencvImgMode_C, RS_BFS_L.Threshold, RS_BFS_L.Sharpen)
+                             || ScreenPatternDetector.IsPatternPresent(BFS_R_C, bmp_R, out pt_R, out MaxVal, opencvImgMode_C, RS_BFS_R.Threshold, RS_BFS_R.Sharpen))
+                        {
+                            MessageShowList.SendEventMsg(string.Format("检测到C技能状态,匹配度:{0},位置:[{1},{2}],[{3},{4}]\t{5}."
+                                , MaxVal.ToString("f3"), pt_L.X, pt_L.Y, pt_R.X, pt_R.Y, dteStrMB), 1);
+
+                            PressKeyCVZ_BFS("C");
+
+                            SaveScreenImg(bmp_L, dteStrMB, "左箭头_C");
+                            SaveScreenImg(bmp_R, dteStrMB, "右箭头_C");
+                        }
+                        else if (ScreenPatternDetector.IsPatternPresent(BFS_L_V, bmp_L, out pt_L, out MaxVal, RS_BFS_L.OpencvMode, RS_BFS_L.Threshold, RS_BFS_L.Sharpen)
+                             || ScreenPatternDetector.IsPatternPresent(BFS_R_V, bmp_R, out pt_R, out MaxVal, RS_BFS_R.OpencvMode, RS_BFS_R.Threshold, RS_BFS_R.Sharpen))
+                        {
+                            MessageShowList.SendEventMsg(string.Format("检测到V技能状态,匹配度:{0},位置:[{1},{2}],[{3},{4}]\t{5}."
+                                , MaxVal.ToString("f3"), pt_L.X, pt_L.Y, pt_R.X, pt_R.Y, dteStrMB), 1);
+
+                            PressKeyCVZ_BFS("V");
+
+                            SaveScreenImg(bmp_L, dteStrMB, "左箭头_V");
+                            SaveScreenImg(bmp_R, dteStrMB, "右箭头_V");
+                        }
+                        else if (ScreenPatternDetector.IsPatternPresent(BFS_L_Z, bmp_L, out pt_L, out MaxVal, RS_BFS_L.OpencvMode, RS_BFS_L.Threshold, RS_BFS_L.Sharpen)
+                             || ScreenPatternDetector.IsPatternPresent(BFS_R_Z, bmp_R, out pt_R, out MaxVal, RS_BFS_R.OpencvMode, RS_BFS_R.Threshold, RS_BFS_R.Sharpen))
+                        {
+                            MessageShowList.SendEventMsg(string.Format("检测到Z技能状态,匹配度:{0},位置:[{1},{2}],[{3},{4}]\t{5}."
+                                , MaxVal.ToString("f3"), pt_L.X, pt_L.Y, pt_R.X, pt_R.Y, dteStrMB), 1);
+
+                            PressKeyCVZ_BFS("Z");
+
+                            SaveScreenImg(bmp_L, dteStrMB, "左箭头_Z");
+                            SaveScreenImg(bmp_R, dteStrMB, "右箭头_Z");
+                        }
+                        else
+                        {
+                            //MessageShowList.SendEventMsg("未检测到技能状态。");
+                        }
+                        #endregion
+
+                        Thread.Sleep(BFS_R_Interval);
+                    }
+                }));
+                th_BFSinger_run.IsBackground = true;
+                th_BFSinger_run.Start();
+            }
+            catch (Exception ex) { }
+        }
+        private void BFS_R_Stop()
+        {
+            try
+            {
+                IsRunning = false;
+                if (BFS_R_Running)
+                {
+                    BFS_R_Running = false;
+                    //SendKBM.MouseLeftUp();
+
+                    if (th_BFSinger_run != null)
+                    {
+                        th_BFSinger_run.Abort();
+                        th_BFSinger_run = null;
+                    }
+                }
+            }
+            catch (Exception ex) { }
+        }
+
+        private bool IsEXCVZtime() {
+
+            bool isPowerfulSkills = false;//是否处于强化技能下
+
+            //距离上次检测到满灵感条的毫秒数 小于 强化技能持续时间，不按CVZ
+            TimeSpan timeSpan = DateTime.Now - LastFullMBTime;
+            if (timeSpan.TotalMilliseconds < PowerfulTime)
+            {
+                MessageShowList.SendEventMsg("距离上次检测到满灵感条的毫秒数 小于 强化技能持续时间，不操作");
+                isPowerfulSkills = true;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// 战地演唱会 识别到图片后按键
+        /// </summary>
+        /// <param name="skillState">识别到图片时的技能状态 QCVZ</param>
+        /// <param name="ForcePowerSkill">强行使用强化技能</param>
+        private void PressKeyCVZ_BFS(string skillState, bool ForcePowerSkill = false)
+        {
+            if (IsEXCVZtime())
+                return;
+
+            //Presskey("LBUTTON");
+            //Thread.Sleep(30);
+            //Presskey("C");
+            //return;
+
+
+            int BFSMODE = 1;
+
+            switch (BFSMODE)
+            {
+                case 0:
+                    #region 左键\C\V\Z 轮流按
+                    string _key_0 = "LBUTTON";
+                    switch (LastBFSKey)
+                    {
+                        case 0: _key_0 = "C"; break;
+                        case 1: _key_0 = "V"; break;
+                        case 2: _key_0 = "Z"; break;
+                        case 3: _key_0 = "LBUTTON"; break;
+                        default: _key_0 = "LBUTTON"; break;
+                    }
+                    //MessageShowList.SendEventMsg(string.Format("LastBFSKey={0},CurKey={1}", LastBFSKey, _key_0));
+                    LastBFSKey++;
+                    if (LastBFSKey > 3)
+                        LastBFSKey = 0;
+
+                    Presskey(_key_0);
+                    #endregion
+                    break;
+                case 1:
+                    #region 左键与C\V\Z三者之一 轮流按
+                    string _key_1 = "LBUTTON";
+
+                    if (LastBFSKey == 0)
+                    {
+                        //上一次按的左键，本次应该按CVZ其中之一
+                        switch (LastBFSKey_CVZ)
+                        {
+                            case 1:
+                                _key_1 = "V";
+                                LastBFSKey = 2;
+                                LastBFSKey_CVZ = 2;
+                                break;
+                            case 2:
+                                _key_1 = "Z";
+                                LastBFSKey = 3;
+                                LastBFSKey_CVZ = 3;
+                                break;
+                            case 3:
+                            default:
+                                _key_1 = "C";
+                                LastBFSKey = 1;
+                                LastBFSKey_CVZ = 1;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        //上一次按的不是左键，此次按左键
+                        _key_1 = "LBUTTON";
+                        LastBFSKey = 0;
+                    }
+
+                    //MessageShowList.SendEventMsg(string.Format("LastBFSKey={0},LastBFSKey_CVZ={2},CurKey={1}", LastBFSKey, _key_1, LastBFSKey_CVZ));
+                    Presskey(_key_1);
+                    #endregion
+                    break;
+            }
+
+            return;
+
+            bool isPowerfulSkills = false;//是否处于强化技能下
+
+            //距离上次检测到满灵感条的毫秒数 小于 强化技能持续时间，不按CVZ
+            TimeSpan timeSpan = DateTime.Now - LastFullMBTime;
+            if (timeSpan.TotalMilliseconds < PowerfulTime)
+            {
+                MessageShowList.SendEventMsg("距离上次检测到满灵感条的毫秒数 小于 强化技能持续时间，不按CVZ");
+                isPowerfulSkills = true;
+                if (!ForcePowerSkill)
+                    LastSkillCVZTime = DateTime.Now;
+            }
+
+            //上次按cvz距离现在的毫秒数大于普通CVZ技能持续时间，则重置计数器，重新按CVZ
+            TimeSpan tsCVZ = DateTime.Now - LastSkillCVZTime;
+            if (tsCVZ.TotalMilliseconds >= CVZ_CX_time)
+            {
+                LastSkillCVZCount = 0;
+                MessageShowList.SendEventMsg("上次按cvz距离现在的毫秒数大于普通CVZ技能持续时间，则重置计数器，重新按CVZ");
+            }
+
+            //强行使用强化技能时，重置计数器，重新按CVZ
+            if (ForcePowerSkill)
+            {
+                MessageShowList.SendEventMsg("强行使用强化技能时，重置计数器，重新按CVZ");
+                LastSkillCVZCount = 0;
+            }
+
+            //按键
+            if (LastSkillCVZCount < 3)
+            {
+                #region cvz三个键未按完，继续按CVZ其中之一
+
+                LastSkillCVZCount++;
+
+                string _key = "C";
+                switch (LastBFSKey)
+                {
+                    case 0: _key = "C"; break;
+                    case 1: _key = "V"; break;
+                    case 2: _key = "Z"; break;
+                    case 3: _key = "C"; break;
+                    default: _key = "C"; break;
+                }
+                LastBFSKey++;
+                Presskey(_key);
+                #endregion
+            }
+            else
+            {
+                #region CVZ三个键已按完，按鼠标左键
+                if (isPowerfulSkills)
+                {
+                    //强化技能下按住鼠标左键
+                    MessageShowList.SendEventMsg("强化技能下,按住鼠标左键");
+                    SendKBM.MouseLeftDown();
+                    Thread.Sleep(PowerfulTime);
+                    MessageShowList.SendEventMsg("强化技能结束,释放鼠标左键");
+                    SendKBM.MouseLeftUp();
+                }
+                else
+                {
+                    //普通技能下，点按鼠标左键
+                    Presskey("LBUTTON");
+                }
+                #endregion
+            }
+        }
+
+        /// <summary>
+        /// 检查灵感条是否充满
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckMBFullState()
+        {
+            try
+            {
+                // 截取灵感条图案区域
+                Bitmap MuseBarImg = ScreenPatternDetector.CaptureScreen(RecognizeSetting_MuseBar.Area);
+                string dtestrMB = DateTime.Now.ToString("HH_mm_ss_ffff");
+
+                Point pt0 = new Point(0, 0);
+                double MaxVal = 0;
+                if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, out MaxVal, RecognizeSetting_MuseBar.OpencvMode, RecognizeSetting_MuseBar.Threshold))
+                {
+                    MusebarFull = true;
+                    LastFullMBTime = DateTime.Now;
+
+                    if (AutoPowerfulSkill == 1)
+                    {
+                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,匹配度:{2},位置: {0}，将自动使用强化技能，{1}", pt0, dtestrMB, MaxVal.ToString("f2")), 1);
+                        PressKeyCVZ_BFS("", true);
+                    }
+                    else if (AutoPowerfulSkill == 2)
+                    {
+                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,匹配度:{2},位置: {0}，将自动使用强化技能CVZ，{1}", pt0, dtestrMB, MaxVal.ToString("f2")), 1);
+                        Presskey("C");
+                        Presskey("V");
+                        Presskey("Z");
+                    }
+                    else
+                    {
+                        MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,匹配度:{2},位置: {0}，请手动使用强化技能，{1}", pt0, dtestrMB, MaxVal.ToString("f2")), 1);
+                    }
+
+                    return true;
+                }
+                else
+                {
+                    MusebarFull = false;
+                    return false;
+                }
+            }
+            catch { return false; }
+        }
+
+        /// <summary>
+        /// 按下按键
+        /// </summary>
+        /// <param name="key"></param>
+        private void Presskey(string key)
+        {
+            try
+            {
+                string dtestr = DateTime.Now.ToString("HH_mm_ss_ffff");
+                string actualKey = dicSkillKey.ContainsKey(key) ? dicSkillKey[key] : key;//实际的按键
+                MessageShowList.SendEventMsg(string.Format("将按下按键{0}，{1}", actualKey, dtestr), 1);
+
+                if (new string[] { "C", "V", "Z" }.Contains(key))
+                {
+                    LastSkillCVZTime = DateTime.Now;
+                }
+
+                switch (actualKey)
+                {
+                    case "LBUTTON": SendKBM.MouseLeftClick(); break;
+                    case "RBUTTON": SendKBM.MouseRightClick(); break;
+                    case "MBUTTON": SendKBM.MouseMiddleClick(); break;
+                    default:
+                        byte key1 = GlobalParams.GetKeyCode(actualKey);
+                        SendKBM.SendKeyPress(key1);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageShowList.SendEventMsg(ex.Message, 1);
+            }
+        }
+
+        #endregion
+
+        #endregion
+
     }
     /// <summary>
     /// 识别设置类
@@ -708,9 +1177,13 @@ namespace TFD_DJ_LUNA
         /// </summary>
         public double Threshold { get; set; } = 0.5;
         /// <summary>
-        /// opencv识图对比模式 0默认 1灰度图 2HSV
+        /// opencv识图对比模式 -1纯色块 0默认 1灰度图 2HSV
         /// </summary>
         public int OpencvMode { get; set; } = 0;
+        /// <summary>
+        /// 锐化截图 【0不做处理 1USM锐化】
+        /// </summary>
+        public int Sharpen { get; set; } = 0;
 
         public string IniSectionName = "";
         public RecognizeSetting() { }
@@ -744,12 +1217,13 @@ namespace TFD_DJ_LUNA
             string H = Common.GetIniParamVal(sectionName, "H");
             string threshold = Common.GetIniParamVal(sectionName, "Threshold");
             string OpencvModeStr = Common.GetIniParamVal(sectionName, "OpencvMode");
+            string SharpeningStr = Common.GetIniParamVal(sectionName, "Sharpen");
 
             this.Area = new Rectangle(
                 int.TryParse(X, out int x) ? x : 0,
                 int.TryParse(Y, out int y) ? y : 0,
-                int.TryParse(W, out int w) ? w : 0,
-                int.TryParse(H, out int h) ? h : 0
+                int.TryParse(W, out int w) ? w : Common.ScreenSize.Width,
+                int.TryParse(H, out int h) ? h : Common.ScreenSize.Height
             );
 
             if (double.TryParse(threshold, out double th) && th >= 0 && th <= 1)
@@ -761,13 +1235,22 @@ namespace TFD_DJ_LUNA
                 this.Threshold = 0.55; // 默认值
             }
 
-            if (int.TryParse(OpencvModeStr, out int opencvMode) && opencvMode >= 0 && opencvMode <= 2)
+            if (int.TryParse(OpencvModeStr, out int opencvMode) && opencvMode >= -1 && opencvMode <= 2)
             {
                 this.OpencvMode = opencvMode;
             }
             else
             {
                 this.OpencvMode = 0; // 默认值
+            }
+
+            if (int.TryParse(SharpeningStr, out int _Sharpening))
+            {
+                this.Sharpen = _Sharpening;
+            }
+            else
+            {
+                this.Sharpen = 0;
             }
         }
     }

@@ -14,6 +14,11 @@ namespace TFD_DJ_LUNA.Tools
 {
     public static class Common
     {
+        /// <summary>
+        /// 屏幕尺寸
+        /// </summary>
+        public static Rectangle ScreenSize { get; set; } = SystemInformation.VirtualScreen;
+
         #region 写日志记录
         public static void CreateLogDir(string dir)
         {
