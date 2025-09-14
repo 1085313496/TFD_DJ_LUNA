@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="packages\OpenCvSharp4.runtime.win.4.2.0.20191223\build\net\OpenCvSharp4.runtime.win.props" Condition="Exists('packages\OpenCvSharp4.runtime.win.4.2.0.20191223\build\net\OpenCvSharp4.runtime.win.props')" />
+  <Import Project="packages\OpenCvSharp4.runtime.win.4.11.0.20250507\build\net48\OpenCvSharp4.runtime.win.props" Condition="Exists('packages\OpenCvSharp4.runtime.win.4.11.0.20250507\build\net48\OpenCvSharp4.runtime.win.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -9,11 +9,12 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>TFD_DJ_LUNA</RootNamespace>
     <AssemblyName>TFD_DJ_LUNA</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -24,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,6 +35,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>luna.ico</ApplicationIcon>
@@ -42,19 +45,32 @@
       <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
-      <HintPath>packages\OpenCvSharp4.4.2.0.20191223\lib\net40\OpenCvSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenCvSharp.Blob, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
-      <HintPath>packages\OpenCvSharp4.4.2.0.20191223\lib\net40\OpenCvSharp.Blob.dll</HintPath>
+      <HintPath>packages\OpenCvSharp4.4.11.0.20250507\lib\net48\OpenCvSharp.dll</HintPath>
     </Reference>
     <Reference Include="OpenCvSharp.Extensions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
-      <HintPath>packages\OpenCvSharp4.4.2.0.20191223\lib\net40\OpenCvSharp.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenCvSharp.UserInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
-      <HintPath>packages\OpenCvSharp4.4.2.0.20191223\lib\net40\OpenCvSharp.UserInterface.dll</HintPath>
+      <HintPath>packages\OpenCvSharp4.Extensions.4.11.0.20250507\lib\net48\OpenCvSharp.Extensions.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing.Common, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Drawing.Common.9.0.9\lib\net462\System.Drawing.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.6.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Numerics.Vectors.4.6.1\lib\net462\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>packages\System.Runtime.CompilerServices.Unsafe.6.1.2\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -65,16 +81,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DicItem.cs">
+    <Compile Include="Tools\DicItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="DicItem.Designer.cs">
+    <Compile Include="Tools\DicItem.Designer.cs">
       <DependentUpon>DicItem.cs</DependentUpon>
     </Compile>
-    <Compile Include="frm_AllKeys.cs">
+    <Compile Include="Pages\frm_AllKeys.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frm_AllKeys.Designer.cs">
+    <Compile Include="Pages\frm_AllKeys.Designer.cs">
       <DependentUpon>frm_AllKeys.cs</DependentUpon>
     </Compile>
     <Compile Include="frm_Index.cs">
@@ -83,63 +99,63 @@
     <Compile Include="frm_Index.Designer.cs">
       <DependentUpon>frm_Index.cs</DependentUpon>
     </Compile>
-    <Compile Include="frm_log.cs">
+    <Compile Include="Pages\frm_log.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frm_log.Designer.cs">
+    <Compile Include="Pages\frm_log.Designer.cs">
       <DependentUpon>frm_log.cs</DependentUpon>
     </Compile>
-    <Compile Include="frm_PickArea.cs">
+    <Compile Include="Pages\frm_PickArea.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frm_PickArea.Designer.cs">
+    <Compile Include="Pages\frm_PickArea.Designer.cs">
       <DependentUpon>frm_PickArea.cs</DependentUpon>
     </Compile>
-    <Compile Include="frm_SetKeyMatch.cs">
+    <Compile Include="Pages\frm_SetKeyMatch.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="frm_SetKeyMatch.Designer.cs">
+    <Compile Include="Pages\frm_SetKeyMatch.Designer.cs">
       <DependentUpon>frm_SetKeyMatch.cs</DependentUpon>
     </Compile>
-    <Compile Include="GlobalParams.cs" />
-    <Compile Include="KeyboardHook.cs" />
-    <Compile Include="MouseTransClick.cs" />
+    <Compile Include="BaseClass\GlobalParams.cs" />
+    <Compile Include="BaseClass\KeyboardHook.cs" />
+    <Compile Include="BaseClass\MouseTransClick.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScreenPatternDetector.cs" />
-    <Compile Include="SimulatorBase.cs" />
-    <Compile Include="SwitchBar.cs">
+    <Compile Include="BaseClass\ScreenPatternDetector.cs" />
+    <Compile Include="BaseClass\SimulatorBase.cs" />
+    <Compile Include="Tools\SwitchBar.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="SwitchBar.designer.cs">
+    <Compile Include="Tools\SwitchBar.designer.cs">
       <DependentUpon>SwitchBar.cs</DependentUpon>
     </Compile>
     <Compile Include="TFD_LUNA.cs" />
-    <Compile Include="ToastlikeMessageBox.cs">
+    <Compile Include="Tools\ToastlikeMessageBox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ToastlikeMessageBox.designer.cs">
+    <Compile Include="Tools\ToastlikeMessageBox.designer.cs">
       <DependentUpon>ToastlikeMessageBox.cs</DependentUpon>
     </Compile>
     <Compile Include="Tools\Common.cs" />
     <Compile Include="Tools\INIFile.cs" />
     <Compile Include="Tools\MessageShowList.cs" />
-    <EmbeddedResource Include="DicItem.resx">
+    <EmbeddedResource Include="Tools\DicItem.resx">
       <DependentUpon>DicItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frm_AllKeys.resx">
+    <EmbeddedResource Include="Pages\frm_AllKeys.resx">
       <DependentUpon>frm_AllKeys.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frm_Index.resx">
       <DependentUpon>frm_Index.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frm_log.resx">
+    <EmbeddedResource Include="Pages\frm_log.resx">
       <DependentUpon>frm_log.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frm_PickArea.resx">
+    <EmbeddedResource Include="Pages\frm_PickArea.resx">
       <DependentUpon>frm_PickArea.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="frm_SetKeyMatch.resx">
+    <EmbeddedResource Include="Pages\frm_SetKeyMatch.resx">
       <DependentUpon>frm_SetKeyMatch.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -150,13 +166,15 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="SwitchBar.resx">
+    <EmbeddedResource Include="Tools\SwitchBar.resx">
       <DependentUpon>SwitchBar.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ToastlikeMessageBox.resx">
+    <EmbeddedResource Include="Tools\ToastlikeMessageBox.resx">
       <DependentUpon>ToastlikeMessageBox.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="app.config" />
     <None Include="Config\Config.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -173,6 +191,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="101000018.png" />
+    <Content Include="imgs\BFL\BFL_R_C.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\BFL\BFL_R_C_Mask.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\BFL\BFL_R_V.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="imgs\lunaBFS\BFS_L_C.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -195,6 +222,30 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="imgs\lunaBFS\BFS_R_Z.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\Musebar\fmb_01.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\Musebar\fmb_02.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\Musebar\fmb_03.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\Musebar\fmb_04.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\Musebar\fmb_05.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\Musebar\ln_lgt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\Noise\Noise_B_Q.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\Noise\Noise_B_Q_Mask.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="imgs\tfdlunadj\ln_jn_01.png">
@@ -224,11 +275,14 @@
     <Content Include="luna.ico" />
     <Content Include="luna.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('packages\OpenCvSharp4.runtime.win.4.2.0.20191223\build\net\OpenCvSharp4.runtime.win.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\OpenCvSharp4.runtime.win.4.2.0.20191223\build\net\OpenCvSharp4.runtime.win.props'))" />
+    <Error Condition="!Exists('packages\OpenCvSharp4.runtime.win.4.11.0.20250507\build\net48\OpenCvSharp4.runtime.win.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\OpenCvSharp4.runtime.win.4.11.0.20250507\build\net48\OpenCvSharp4.runtime.win.props'))" />
+    <Error Condition="!Exists('packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets'))" />
   </Target>
+  <Import Project="packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets" Condition="Exists('packages\System.ValueTuple.4.6.1\build\net471\System.ValueTuple.targets')" />
 </Project>

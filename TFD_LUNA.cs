@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -58,6 +59,14 @@ namespace TFD_DJ_LUNA
             { "V", "V" },
             { "Z", "Z" }
         };
+
+        byte btKey_Q = GlobalParams.GetKeyCode("Q");
+        byte btKey_C = GlobalParams.GetKeyCode("C");
+        byte btKey_V = GlobalParams.GetKeyCode("V");
+        byte btKey_Z = GlobalParams.GetKeyCode("Z");
+
+
+
         /// <summary>
         /// 加载技能按键映射
         /// </summary>
@@ -167,6 +176,29 @@ namespace TFD_DJ_LUNA
         /// 战地演唱会右箭头_Z
         /// </summary>
         public Bitmap BFS_R_Z;
+
+        /// <summary>
+        /// 战地演唱会 右箭头
+        /// </summary>
+        public Bitmap BFL_R_C;
+        /// <summary>
+        /// 战地演唱会 右箭头掩码
+        /// </summary>
+        public Bitmap BFL_R_C_Mask;
+
+        /// <summary>
+        /// 普通露娜 菱形图案
+        /// </summary>
+        public Bitmap Noise_B_Q;
+        /// <summary>
+        ///  普通露娜 菱形图案 掩码
+        /// </summary>
+        public Bitmap Noise_B_Q_Mask;
+
+        /// <summary>
+        /// 满灵感条图片组
+        /// </summary>
+        public List<Bitmap> lsMusebarImgs = new List<Bitmap>();
         #endregion
 
         /// <summary>
@@ -338,6 +370,44 @@ namespace TFD_DJ_LUNA
                 BFS_R_C = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_R_C.png", rootPath));
                 BFS_R_V = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_R_V.png", rootPath));
                 BFS_R_Z = new Bitmap(string.Format("{0}\\imgs\\lunaBFS\\BFS_R_Z.png", rootPath));
+
+                BFL_R_C = new Bitmap(string.Format("{0}\\imgs\\BFL\\BFL_R_C.png", rootPath));
+                BFL_R_C_Mask = new Bitmap(string.Format("{0}\\imgs\\BFL\\BFL_R_C_Mask.png", rootPath));
+                Noise_B_Q = new Bitmap(string.Format("{0}\\imgs\\Noise\\Noise_B_Q.png", rootPath));
+                Noise_B_Q_Mask = new Bitmap(string.Format("{0}\\imgs\\Noise\\Noise_B_Q_Mask.png", rootPath));
+
+                lsMusebarImgs.Clear();
+                string folderPath = string.Format("{0}\\imgs\\Musebar", rootPath);
+                string[] imageExtensions = { ".jpg", ".jpeg", ".png", ".bmp", ".gif" };
+                try
+                {
+                    var imagePaths = Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories)
+                        .Where(file => imageExtensions.Contains(Path.GetExtension(file).ToLower()))
+                        .ToList();
+
+                    foreach (string path in imagePaths)
+                    {
+                        Bitmap bmp = new Bitmap(path);
+                        lsMusebarImgs.Add(bmp);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageShowList.SendEventMsg("加载灵感条模板图案异常！" + ex.Message);
+                }
+
+                string actualKey = dicSkillKey.ContainsKey("Q") ? dicSkillKey["Q"] : "Q";
+                btKey_Q = GlobalParams.GetKeyCode(actualKey);
+
+                actualKey = dicSkillKey.ContainsKey("C") ? dicSkillKey["C"] : "C";
+                btKey_C = GlobalParams.GetKeyCode(actualKey);
+
+                actualKey = dicSkillKey.ContainsKey("V") ? dicSkillKey["V"] : "V";
+                btKey_V = GlobalParams.GetKeyCode(actualKey);
+
+                actualKey = dicSkillKey.ContainsKey("Z") ? dicSkillKey["Z"] : "Z";
+                btKey_Z = GlobalParams.GetKeyCode(actualKey);
+
             }
             catch (Exception ex)
             {
@@ -796,6 +866,11 @@ namespace TFD_DJ_LUNA
         /// </summary>
         private int LastBFSKey_CVZ { get; set; } = -1;
 
+        /// <summary>
+        /// 上次按下的按键类型 【0未按键 1鼠标左键 2CVZ一起按】
+        /// </summary>
+        private int LastKeyType { get; set; } = 0;
+
         private void BFS_R_Start()
         {
             try
@@ -804,22 +879,17 @@ namespace TFD_DJ_LUNA
                 {
                     IsRunning = true;
                     BFS_R_Running = true;
-                    LastFullMBTime=DateTime.MinValue;
+                    LastFullMBTime = DateTime.MinValue;
+
+                    Thread.Sleep(300);
 
                     while (BFS_R_Running)
                     {
-                       
-                        //Presskey("LBUTTON");
-                        //Thread.Sleep(105);
-                        //Presskey("C");
-                        // Thread.Sleep(250);
-                        //continue;
-
                         //灵感条满，跳出
                         if (CheckMBFullState())
                             continue;
 
-                        Bitmap bmp_L = ScreenPatternDetector.CaptureScreen(RS_BFS_L.Area);
+                        // Bitmap bmp_L = ScreenPatternDetector.CaptureScreen(RS_BFS_L.Area);
                         Bitmap bmp_R = ScreenPatternDetector.CaptureScreen(RS_BFS_R.Area);
 
                         Point pt_L = new Point(0, 0);
@@ -827,55 +897,47 @@ namespace TFD_DJ_LUNA
                         double MaxVal = 0;
                         string dteStrMB = DateTime.Now.ToString("HH_mm_ss_ffff");
 
-                        //SaveScreenImg(bmp_L, dteStrMB, "左箭头");
-                        //SaveScreenImg(bmp_R, dteStrMB, "右箭头");
 
                         //C技能图片颜色为橙色，不能使用H通道，需更换为S通道
                         int opencvImgMode_C = RS_BFS_L.OpencvMode == 2 ? 3 : RS_BFS_L.OpencvMode;
+                        Bitmap bmp_out = null;
+                        bool saveImg = true;
 
                         #region 图片检测并按键
-                        if (ScreenPatternDetector.IsPatternPresent(BFS_L_Q, bmp_L, out pt_L, out MaxVal, RS_BFS_L.OpencvMode, RS_BFS_L.Threshold, RS_BFS_L.Sharpen)
-                            || ScreenPatternDetector.IsPatternPresent(BFS_R_Q, bmp_R, out pt_R, out MaxVal, RS_BFS_R.OpencvMode, RS_BFS_R.Threshold, RS_BFS_R.Sharpen))
+                        if (ScreenPatternDetector.IsPatternPresent_New(BFL_R_C, BFL_R_C_Mask, bmp_R, out MaxVal, out pt_R, out bmp_out, RS_BFS_R.Threshold, 1, RS_BFS_R.OpencvMode, 2, saveImg))
                         {
-                            MessageShowList.SendEventMsg(string.Format("检测到Q技能状态,匹配度:{0},位置:[{1},{2}],[{3},{4}]\t{5}."
-                                , MaxVal.ToString("f3"), pt_L.X, pt_L.Y, pt_R.X, pt_R.Y, dteStrMB), 1);
+                            MessageShowList.SendEventMsg(string.Format("检测到Q技能状态,匹配度:{0},位置:[{1},{2}]\t{3}.", MaxVal.ToString("f3"), pt_R.X, pt_R.Y, dteStrMB), 1);
 
                             PressKeyCVZ_BFS("Q");
 
-                            SaveScreenImg(bmp_L, dteStrMB, "左箭头_Q");
+                            //SaveScreenImg(bmp_L, dteStrMB, "左箭头_Q");
                             SaveScreenImg(bmp_R, dteStrMB, "右箭头_Q");
                         }
-                        else if (ScreenPatternDetector.IsPatternPresent(BFS_L_C, bmp_L, out pt_L, out MaxVal, opencvImgMode_C, RS_BFS_L.Threshold, RS_BFS_L.Sharpen)
-                             || ScreenPatternDetector.IsPatternPresent(BFS_R_C, bmp_R, out pt_R, out MaxVal, opencvImgMode_C, RS_BFS_R.Threshold, RS_BFS_R.Sharpen))
+                        else if (ScreenPatternDetector.IsPatternPresent_New(BFL_R_C, BFL_R_C_Mask, bmp_R, out MaxVal, out pt_R, out bmp_out, RS_BFS_R.Threshold, 1, RS_BFS_R.OpencvMode, 2, saveImg))
                         {
-                            MessageShowList.SendEventMsg(string.Format("检测到C技能状态,匹配度:{0},位置:[{1},{2}],[{3},{4}]\t{5}."
-                                , MaxVal.ToString("f3"), pt_L.X, pt_L.Y, pt_R.X, pt_R.Y, dteStrMB), 1);
+                            MessageShowList.SendEventMsg(string.Format("检测到C技能状态,匹配度:{0},位置:[{1},{2}]\t{3}.", MaxVal.ToString("f3"), pt_R.X, pt_R.Y, dteStrMB), 1);
 
                             PressKeyCVZ_BFS("C");
 
-                            SaveScreenImg(bmp_L, dteStrMB, "左箭头_C");
+                            // SaveScreenImg(bmp_L, dteStrMB, "左箭头_C");
                             SaveScreenImg(bmp_R, dteStrMB, "右箭头_C");
                         }
-                        else if (ScreenPatternDetector.IsPatternPresent(BFS_L_V, bmp_L, out pt_L, out MaxVal, RS_BFS_L.OpencvMode, RS_BFS_L.Threshold, RS_BFS_L.Sharpen)
-                             || ScreenPatternDetector.IsPatternPresent(BFS_R_V, bmp_R, out pt_R, out MaxVal, RS_BFS_R.OpencvMode, RS_BFS_R.Threshold, RS_BFS_R.Sharpen))
+                        else if (ScreenPatternDetector.IsPatternPresent_New(BFL_R_C, BFL_R_C_Mask, bmp_R, out MaxVal, out pt_R, out bmp_out, RS_BFS_R.Threshold, 1, RS_BFS_R.OpencvMode, 2, saveImg))
                         {
-                            MessageShowList.SendEventMsg(string.Format("检测到V技能状态,匹配度:{0},位置:[{1},{2}],[{3},{4}]\t{5}."
-                                , MaxVal.ToString("f3"), pt_L.X, pt_L.Y, pt_R.X, pt_R.Y, dteStrMB), 1);
+                            MessageShowList.SendEventMsg(string.Format("检测到V技能状态,匹配度:{0},位置:[{1},{2}]\t{3}.", MaxVal.ToString("f3"), pt_R.X, pt_R.Y, dteStrMB), 1);
 
                             PressKeyCVZ_BFS("V");
 
-                            SaveScreenImg(bmp_L, dteStrMB, "左箭头_V");
+                            // SaveScreenImg(bmp_L, dteStrMB, "左箭头_V");
                             SaveScreenImg(bmp_R, dteStrMB, "右箭头_V");
                         }
-                        else if (ScreenPatternDetector.IsPatternPresent(BFS_L_Z, bmp_L, out pt_L, out MaxVal, RS_BFS_L.OpencvMode, RS_BFS_L.Threshold, RS_BFS_L.Sharpen)
-                             || ScreenPatternDetector.IsPatternPresent(BFS_R_Z, bmp_R, out pt_R, out MaxVal, RS_BFS_R.OpencvMode, RS_BFS_R.Threshold, RS_BFS_R.Sharpen))
+                        else if (ScreenPatternDetector.IsPatternPresent_New(BFL_R_C, BFL_R_C_Mask, bmp_R, out MaxVal, out pt_R, out bmp_out, RS_BFS_R.Threshold, 1, RS_BFS_R.OpencvMode, 2, saveImg))
                         {
-                            MessageShowList.SendEventMsg(string.Format("检测到Z技能状态,匹配度:{0},位置:[{1},{2}],[{3},{4}]\t{5}."
-                                , MaxVal.ToString("f3"), pt_L.X, pt_L.Y, pt_R.X, pt_R.Y, dteStrMB), 1);
+                            MessageShowList.SendEventMsg(string.Format("检测到Z技能状态,匹配度:{0},位置:[{1},{2}]\t{3}.", MaxVal.ToString("f3"), pt_R.X, pt_R.Y, dteStrMB), 1);
 
                             PressKeyCVZ_BFS("Z");
 
-                            SaveScreenImg(bmp_L, dteStrMB, "左箭头_Z");
+                            // SaveScreenImg(bmp_L, dteStrMB, "左箭头_Z");
                             SaveScreenImg(bmp_R, dteStrMB, "右箭头_Z");
                         }
                         else
@@ -900,7 +962,7 @@ namespace TFD_DJ_LUNA
                 if (BFS_R_Running)
                 {
                     BFS_R_Running = false;
-                    //SendKBM.MouseLeftUp();
+                    SendKBM.MouseLeftUp();
 
                     if (th_BFSinger_run != null)
                     {
@@ -912,8 +974,8 @@ namespace TFD_DJ_LUNA
             catch (Exception ex) { }
         }
 
-        private bool IsEXCVZtime() {
-
+        private bool IsEXCVZtime()
+        {
             bool isPowerfulSkills = false;//是否处于强化技能下
 
             //距离上次检测到满灵感条的毫秒数 小于 强化技能持续时间，不按CVZ
@@ -925,7 +987,10 @@ namespace TFD_DJ_LUNA
                 return true;
             }
             else
+            {
+                /// MusebarFull = false;
                 return false;
+            }
         }
 
         /// <summary>
@@ -935,17 +1000,14 @@ namespace TFD_DJ_LUNA
         /// <param name="ForcePowerSkill">强行使用强化技能</param>
         private void PressKeyCVZ_BFS(string skillState, bool ForcePowerSkill = false)
         {
+            //灵感条满，跳出
+            if (CheckMBFullState())
+                return;
+
             if (IsEXCVZtime())
                 return;
 
-            //Presskey("LBUTTON");
-            //Thread.Sleep(30);
-            //Presskey("C");
-            //return;
-
-
-            int BFSMODE = 1;
-
+            int BFSMODE = 2;
             switch (BFSMODE)
             {
                 case 0:
@@ -1005,75 +1067,36 @@ namespace TFD_DJ_LUNA
                     Presskey(_key_1);
                     #endregion
                     break;
-            }
+                case 2:
+                    #region 按左键与CVZ同时按 交替
+                    switch (LastKeyType)
+                    {
+                        case 1:
+                            //Presskey("C");
+                            //Presskey("V");
+                            //Presskey("Z");
 
-            return;
 
-            bool isPowerfulSkills = false;//是否处于强化技能下
+                            SendKBM.SendKeyPress(btKey_C);
+                            SendKBM.SendKeyPress(btKey_V);
+                            SendKBM.SendKeyPress(btKey_Z);
 
-            //距离上次检测到满灵感条的毫秒数 小于 强化技能持续时间，不按CVZ
-            TimeSpan timeSpan = DateTime.Now - LastFullMBTime;
-            if (timeSpan.TotalMilliseconds < PowerfulTime)
-            {
-                MessageShowList.SendEventMsg("距离上次检测到满灵感条的毫秒数 小于 强化技能持续时间，不按CVZ");
-                isPowerfulSkills = true;
-                if (!ForcePowerSkill)
-                    LastSkillCVZTime = DateTime.Now;
-            }
+                            MessageShowList.SendEventMsg("CVZ同时按");
 
-            //上次按cvz距离现在的毫秒数大于普通CVZ技能持续时间，则重置计数器，重新按CVZ
-            TimeSpan tsCVZ = DateTime.Now - LastSkillCVZTime;
-            if (tsCVZ.TotalMilliseconds >= CVZ_CX_time)
-            {
-                LastSkillCVZCount = 0;
-                MessageShowList.SendEventMsg("上次按cvz距离现在的毫秒数大于普通CVZ技能持续时间，则重置计数器，重新按CVZ");
-            }
-
-            //强行使用强化技能时，重置计数器，重新按CVZ
-            if (ForcePowerSkill)
-            {
-                MessageShowList.SendEventMsg("强行使用强化技能时，重置计数器，重新按CVZ");
-                LastSkillCVZCount = 0;
-            }
-
-            //按键
-            if (LastSkillCVZCount < 3)
-            {
-                #region cvz三个键未按完，继续按CVZ其中之一
-
-                LastSkillCVZCount++;
-
-                string _key = "C";
-                switch (LastBFSKey)
-                {
-                    case 0: _key = "C"; break;
-                    case 1: _key = "V"; break;
-                    case 2: _key = "Z"; break;
-                    case 3: _key = "C"; break;
-                    default: _key = "C"; break;
-                }
-                LastBFSKey++;
-                Presskey(_key);
-                #endregion
-            }
-            else
-            {
-                #region CVZ三个键已按完，按鼠标左键
-                if (isPowerfulSkills)
-                {
-                    //强化技能下按住鼠标左键
-                    MessageShowList.SendEventMsg("强化技能下,按住鼠标左键");
-                    SendKBM.MouseLeftDown();
-                    Thread.Sleep(PowerfulTime);
-                    MessageShowList.SendEventMsg("强化技能结束,释放鼠标左键");
-                    SendKBM.MouseLeftUp();
-                }
-                else
-                {
-                    //普通技能下，点按鼠标左键
-                    Presskey("LBUTTON");
-                }
-                #endregion
+                            LastKeyType = 2;
+                            break;
+                        case 2:
+                            Presskey("LBUTTON");
+                            LastKeyType = 1;
+                            break;
+                        case 0:
+                        default:                            
+                            Presskey("LBUTTON");
+                            LastKeyType = 1;
+                            break;
+                    }
+                    #endregion
+                    break;
             }
         }
 
@@ -1089,29 +1112,58 @@ namespace TFD_DJ_LUNA
                 Bitmap MuseBarImg = ScreenPatternDetector.CaptureScreen(RecognizeSetting_MuseBar.Area);
                 string dtestrMB = DateTime.Now.ToString("HH_mm_ss_ffff");
 
+                #region 检测指定区域是否有几张灵感条图片之一
                 Point pt0 = new Point(0, 0);
                 double MaxVal = 0;
-                if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, out MaxVal, RecognizeSetting_MuseBar.OpencvMode, RecognizeSetting_MuseBar.Threshold))
+                bool FullMusebarChecked = false;
+                foreach (Bitmap bmp in lsMusebarImgs)
                 {
+                    if (ScreenPatternDetector.IsPatternPresent(MuseBar, MuseBarImg, out pt0, out MaxVal, RecognizeSetting_MuseBar.OpencvMode, RecognizeSetting_MuseBar.Threshold))
+                    {
+                        FullMusebarChecked = true;
+                        break;
+                    }
+                }
+                #endregion
+
+                if (FullMusebarChecked)
+                {
+                    #region 检测到满灵感条
                     MusebarFull = true;
                     LastFullMBTime = DateTime.Now;
+
+                    int _diffTime = 250 + 200;
+                    int _pcvzTime = PowerfulTime - _diffTime;
 
                     if (AutoPowerfulSkill == 1)
                     {
                         MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,匹配度:{2},位置: {0}，将自动使用强化技能，{1}", pt0, dtestrMB, MaxVal.ToString("f2")), 1);
-                        PressKeyCVZ_BFS("", true);
+
+                        Presskey("C", true);
+                        Thread.Sleep(10);
+                        Presskey("V", true);
+                        Thread.Sleep(250);
+                        SendKBM.MouseLeftDown();
+                        Thread.Sleep(_pcvzTime);
+                        SendKBM.MouseLeftUp();
                     }
                     else if (AutoPowerfulSkill == 2)
                     {
                         MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,匹配度:{2},位置: {0}，将自动使用强化技能CVZ，{1}", pt0, dtestrMB, MaxVal.ToString("f2")), 1);
-                        Presskey("C");
-                        Presskey("V");
-                        Presskey("Z");
+                        Presskey("C", true);
+                        Presskey("V", true);
+                        Presskey("Z", true);
+
+                        Thread.Sleep(250);
+                        SendKBM.MouseLeftDown();
+                        Thread.Sleep(_pcvzTime);
+                        SendKBM.MouseLeftUp();
                     }
                     else
                     {
                         MessageShowList.SendEventMsg(string.Format("检测到满灵感条图案,匹配度:{2},位置: {0}，请手动使用强化技能，{1}", pt0, dtestrMB, MaxVal.ToString("f2")), 1);
                     }
+                    #endregion
 
                     return true;
                 }
@@ -1128,10 +1180,16 @@ namespace TFD_DJ_LUNA
         /// 按下按键
         /// </summary>
         /// <param name="key"></param>
-        private void Presskey(string key)
+        private void Presskey(string key, bool mustPress = false)
         {
             try
             {
+                if (!mustPress && MusebarFull)
+                {
+                    MessageShowList.SendEventMsg("灵感条已充满，取消此次普通按键");
+                    return;
+                }
+
                 string dtestr = DateTime.Now.ToString("HH_mm_ss_ffff");
                 string actualKey = dicSkillKey.ContainsKey(key) ? dicSkillKey[key] : key;//实际的按键
                 MessageShowList.SendEventMsg(string.Format("将按下按键{0}，{1}", actualKey, dtestr), 1);
@@ -1143,8 +1201,8 @@ namespace TFD_DJ_LUNA
 
                 switch (actualKey)
                 {
-                    case "LBUTTON": SendKBM.MouseLeftClick(); break;
-                    case "RBUTTON": SendKBM.MouseRightClick(); break;
+                    case "LBUTTON": SendKBM.MouseLeftClick(20); break;
+                    case "RBUTTON": SendKBM.MouseRightClick(10); break;
                     case "MBUTTON": SendKBM.MouseMiddleClick(); break;
                     default:
                         byte key1 = GlobalParams.GetKeyCode(actualKey);
@@ -1184,6 +1242,10 @@ namespace TFD_DJ_LUNA
         /// 锐化截图 【0不做处理 1USM锐化】
         /// </summary>
         public int Sharpen { get; set; } = 0;
+        /// <summary>
+        /// 掩码设置 【1：自动生成掩码 2：使用手动生成的掩码 其他值：不使用掩码】
+        /// </summary>
+        public int MaskMode { get; set; } = 0;
 
         public string IniSectionName = "";
         public RecognizeSetting() { }

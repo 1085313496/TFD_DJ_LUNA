@@ -45,6 +45,7 @@
             this.rb_CandV = new System.Windows.Forms.RadioButton();
             this.rb_CorV = new System.Windows.Forms.RadioButton();
             this.gb_R = new System.Windows.Forms.GroupBox();
+            this.ckb_Sharpen_R = new System.Windows.Forms.CheckBox();
             this.label17 = new System.Windows.Forms.Label();
             this.rg_R_HSV = new System.Windows.Forms.RadioButton();
             this.rg_R_Grey = new System.Windows.Forms.RadioButton();
@@ -62,6 +63,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.gb_MB = new System.Windows.Forms.GroupBox();
+            this.ckb_Sharpen_MB = new System.Windows.Forms.CheckBox();
             this.label18 = new System.Windows.Forms.Label();
             this.rg_MB_HSV = new System.Windows.Forms.RadioButton();
             this.rg_MB_Grey = new System.Windows.Forms.RadioButton();
@@ -95,9 +97,20 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabp_BasicSetting = new System.Windows.Forms.TabPage();
             this.gb_BFS = new System.Windows.Forms.GroupBox();
+            this.rb_BFS_APF_Enable_SP = new System.Windows.Forms.RadioButton();
+            this.rb_BFS_APF_Enable = new System.Windows.Forms.RadioButton();
+            this.rb_BFS_APF_Disable = new System.Windows.Forms.RadioButton();
+            this.label34 = new System.Windows.Forms.Label();
+            this.tb_BFS_PowerfulTime = new System.Windows.Forms.TextBox();
+            this.label33 = new System.Windows.Forms.Label();
+            this.tb_BFS_CVZ_CX_time = new System.Windows.Forms.TextBox();
+            this.label27 = new System.Windows.Forms.Label();
+            this.tb_BFS_R_Interval = new System.Windows.Forms.TextBox();
+            this.label20 = new System.Windows.Forms.Label();
             this.tabp_ImgSetting = new System.Windows.Forms.TabPage();
             this.tabp_BFS = new System.Windows.Forms.TabPage();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.ckb_Sharpen_BFS_L = new System.Windows.Forms.CheckBox();
             this.label19 = new System.Windows.Forms.Label();
             this.rb_BFS_L_HSV = new System.Windows.Forms.RadioButton();
             this.rb_BFS_L_Grey = new System.Windows.Forms.RadioButton();
@@ -115,6 +128,7 @@
             this.label24 = new System.Windows.Forms.Label();
             this.label25 = new System.Windows.Forms.Label();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.ckb_Sharpen_BFS_R = new System.Windows.Forms.CheckBox();
             this.label26 = new System.Windows.Forms.Label();
             this.rb_BFS_R_HSV = new System.Windows.Forms.RadioButton();
             this.rb_BFS_R_GREY = new System.Windows.Forms.RadioButton();
@@ -131,20 +145,6 @@
             this.label30 = new System.Windows.Forms.Label();
             this.label31 = new System.Windows.Forms.Label();
             this.label32 = new System.Windows.Forms.Label();
-            this.ckb_Sharpen_BFS_L = new System.Windows.Forms.CheckBox();
-            this.ckb_Sharpen_BFS_R = new System.Windows.Forms.CheckBox();
-            this.ckb_Sharpen_R = new System.Windows.Forms.CheckBox();
-            this.ckb_Sharpen_MB = new System.Windows.Forms.CheckBox();
-            this.tb_BFS_R_Interval = new System.Windows.Forms.TextBox();
-            this.label20 = new System.Windows.Forms.Label();
-            this.label27 = new System.Windows.Forms.Label();
-            this.tb_BFS_CVZ_CX_time = new System.Windows.Forms.TextBox();
-            this.label33 = new System.Windows.Forms.Label();
-            this.tb_BFS_PowerfulTime = new System.Windows.Forms.TextBox();
-            this.label34 = new System.Windows.Forms.Label();
-            this.rb_BFS_APF_Disable = new System.Windows.Forms.RadioButton();
-            this.rb_BFS_APF_Enable = new System.Windows.Forms.RadioButton();
-            this.rb_BFS_APF_Enable_SP = new System.Windows.Forms.RadioButton();
             this.btn_SetLogForm = new System.Windows.Forms.Button();
             this.swb_EditPage = new TFD_DJ_LUNA.SwitchBar();
             this.gb_Noise.SuspendLayout();
@@ -175,7 +175,7 @@
             this.rtb.Margin = new System.Windows.Forms.Padding(4);
             this.rtb.Name = "rtb";
             this.rtb.ReadOnly = true;
-            this.rtb.Size = new System.Drawing.Size(344, 441);
+            this.rtb.Size = new System.Drawing.Size(468, 441);
             this.rtb.TabIndex = 0;
             this.rtb.Text = "";
             // 
@@ -363,6 +363,18 @@
             this.gb_R.TabIndex = 7;
             this.gb_R.TabStop = false;
             this.gb_R.Text = "菱形图案识别区域";
+            // 
+            // ckb_Sharpen_R
+            // 
+            this.ckb_Sharpen_R.AutoSize = true;
+            this.ckb_Sharpen_R.Location = new System.Drawing.Point(285, 78);
+            this.ckb_Sharpen_R.Name = "ckb_Sharpen_R";
+            this.ckb_Sharpen_R.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.ckb_Sharpen_R.Size = new System.Drawing.Size(75, 21);
+            this.ckb_Sharpen_R.TabIndex = 20;
+            this.ckb_Sharpen_R.Text = "锐化截图";
+            this.ckb_Sharpen_R.UseVisualStyleBackColor = true;
+            this.ckb_Sharpen_R.CheckedChanged += new System.EventHandler(this.ckb_Sharpen_R_CheckedChanged);
             // 
             // label17
             // 
@@ -578,6 +590,18 @@
             this.gb_MB.TabIndex = 8;
             this.gb_MB.TabStop = false;
             this.gb_MB.Text = "灵感条识别区域";
+            // 
+            // ckb_Sharpen_MB
+            // 
+            this.ckb_Sharpen_MB.AutoSize = true;
+            this.ckb_Sharpen_MB.Location = new System.Drawing.Point(288, 75);
+            this.ckb_Sharpen_MB.Name = "ckb_Sharpen_MB";
+            this.ckb_Sharpen_MB.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.ckb_Sharpen_MB.Size = new System.Drawing.Size(75, 21);
+            this.ckb_Sharpen_MB.TabIndex = 23;
+            this.ckb_Sharpen_MB.Text = "锐化截图";
+            this.ckb_Sharpen_MB.UseVisualStyleBackColor = true;
+            this.ckb_Sharpen_MB.CheckedChanged += new System.EventHandler(this.ckb_Sharpen_MB_CheckedChanged);
             // 
             // label18
             // 
@@ -930,7 +954,7 @@
             this.groupBox1.Controls.Add(this.rtb);
             this.groupBox1.Location = new System.Drawing.Point(427, 59);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(350, 463);
+            this.groupBox1.Size = new System.Drawing.Size(474, 463);
             this.groupBox1.TabIndex = 12;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "运行日志";
@@ -1000,6 +1024,115 @@
             this.gb_BFS.TabStop = false;
             this.gb_BFS.Text = "战地演唱会";
             // 
+            // rb_BFS_APF_Enable_SP
+            // 
+            this.rb_BFS_APF_Enable_SP.AutoSize = true;
+            this.rb_BFS_APF_Enable_SP.Location = new System.Drawing.Point(136, 154);
+            this.rb_BFS_APF_Enable_SP.Name = "rb_BFS_APF_Enable_SP";
+            this.rb_BFS_APF_Enable_SP.Size = new System.Drawing.Size(133, 21);
+            this.rb_BFS_APF_Enable_SP.TabIndex = 22;
+            this.rb_BFS_APF_Enable_SP.TabStop = true;
+            this.rb_BFS_APF_Enable_SP.Text = "启用【CVZ一起按】";
+            this.rb_BFS_APF_Enable_SP.UseVisualStyleBackColor = true;
+            this.rb_BFS_APF_Enable_SP.CheckedChanged += new System.EventHandler(this.rb_BFS_APF_Disable_CheckedChanged);
+            // 
+            // rb_BFS_APF_Enable
+            // 
+            this.rb_BFS_APF_Enable.AutoSize = true;
+            this.rb_BFS_APF_Enable.Location = new System.Drawing.Point(208, 127);
+            this.rb_BFS_APF_Enable.Name = "rb_BFS_APF_Enable";
+            this.rb_BFS_APF_Enable.Size = new System.Drawing.Size(50, 21);
+            this.rb_BFS_APF_Enable.TabIndex = 22;
+            this.rb_BFS_APF_Enable.TabStop = true;
+            this.rb_BFS_APF_Enable.Text = "启用";
+            this.rb_BFS_APF_Enable.UseVisualStyleBackColor = true;
+            this.rb_BFS_APF_Enable.CheckedChanged += new System.EventHandler(this.rb_BFS_APF_Disable_CheckedChanged);
+            // 
+            // rb_BFS_APF_Disable
+            // 
+            this.rb_BFS_APF_Disable.AutoSize = true;
+            this.rb_BFS_APF_Disable.Location = new System.Drawing.Point(136, 127);
+            this.rb_BFS_APF_Disable.Name = "rb_BFS_APF_Disable";
+            this.rb_BFS_APF_Disable.Size = new System.Drawing.Size(50, 21);
+            this.rb_BFS_APF_Disable.TabIndex = 22;
+            this.rb_BFS_APF_Disable.TabStop = true;
+            this.rb_BFS_APF_Disable.Text = "禁用";
+            this.rb_BFS_APF_Disable.UseVisualStyleBackColor = true;
+            this.rb_BFS_APF_Disable.CheckedChanged += new System.EventHandler(this.rb_BFS_APF_Disable_CheckedChanged);
+            // 
+            // label34
+            // 
+            this.label34.AutoSize = true;
+            this.label34.Location = new System.Drawing.Point(22, 131);
+            this.label34.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label34.Name = "label34";
+            this.label34.Size = new System.Drawing.Size(116, 17);
+            this.label34.TabIndex = 21;
+            this.label34.Text = "自动使用强化技能：";
+            // 
+            // tb_BFS_PowerfulTime
+            // 
+            this.tb_BFS_PowerfulTime.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.tb_BFS_PowerfulTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tb_BFS_PowerfulTime.Location = new System.Drawing.Point(158, 90);
+            this.tb_BFS_PowerfulTime.Name = "tb_BFS_PowerfulTime";
+            this.tb_BFS_PowerfulTime.Size = new System.Drawing.Size(80, 16);
+            this.tb_BFS_PowerfulTime.TabIndex = 20;
+            this.tb_BFS_PowerfulTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tb_BFS_PowerfulTime.TextChanged += new System.EventHandler(this.tb_BFS_PowerfulTime_TextChanged);
+            // 
+            // label33
+            // 
+            this.label33.AutoSize = true;
+            this.label33.Location = new System.Drawing.Point(21, 90);
+            this.label33.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label33.Name = "label33";
+            this.label33.Size = new System.Drawing.Size(145, 17);
+            this.label33.TabIndex = 19;
+            this.label33.Text = "强化技能持续时间(ms) ：";
+            // 
+            // tb_BFS_CVZ_CX_time
+            // 
+            this.tb_BFS_CVZ_CX_time.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.tb_BFS_CVZ_CX_time.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tb_BFS_CVZ_CX_time.Location = new System.Drawing.Point(158, 60);
+            this.tb_BFS_CVZ_CX_time.Name = "tb_BFS_CVZ_CX_time";
+            this.tb_BFS_CVZ_CX_time.Size = new System.Drawing.Size(80, 16);
+            this.tb_BFS_CVZ_CX_time.TabIndex = 20;
+            this.tb_BFS_CVZ_CX_time.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tb_BFS_CVZ_CX_time.TextChanged += new System.EventHandler(this.tb_BFS_CVZ_CX_time_TextChanged);
+            // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(21, 60);
+            this.label27.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(145, 17);
+            this.label27.TabIndex = 19;
+            this.label27.Text = "普通技能持续时间(ms) ：";
+            // 
+            // tb_BFS_R_Interval
+            // 
+            this.tb_BFS_R_Interval.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.tb_BFS_R_Interval.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tb_BFS_R_Interval.Location = new System.Drawing.Point(158, 30);
+            this.tb_BFS_R_Interval.Name = "tb_BFS_R_Interval";
+            this.tb_BFS_R_Interval.Size = new System.Drawing.Size(80, 16);
+            this.tb_BFS_R_Interval.TabIndex = 20;
+            this.tb_BFS_R_Interval.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.tb_BFS_R_Interval.TextChanged += new System.EventHandler(this.tb_BFS_R_Interval_TextChanged);
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(21, 30);
+            this.label20.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(97, 17);
+            this.label20.TabIndex = 19;
+            this.label20.Text = "截屏间隔(ms) ：";
+            // 
             // tabp_ImgSetting
             // 
             this.tabp_ImgSetting.Controls.Add(this.gb_R);
@@ -1050,6 +1183,18 @@
             this.groupBox2.TabIndex = 9;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "左箭头识别区域";
+            // 
+            // ckb_Sharpen_BFS_L
+            // 
+            this.ckb_Sharpen_BFS_L.AutoSize = true;
+            this.ckb_Sharpen_BFS_L.Location = new System.Drawing.Point(285, 78);
+            this.ckb_Sharpen_BFS_L.Name = "ckb_Sharpen_BFS_L";
+            this.ckb_Sharpen_BFS_L.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.ckb_Sharpen_BFS_L.Size = new System.Drawing.Size(75, 21);
+            this.ckb_Sharpen_BFS_L.TabIndex = 19;
+            this.ckb_Sharpen_BFS_L.Text = "锐化截图";
+            this.ckb_Sharpen_BFS_L.UseVisualStyleBackColor = true;
+            this.ckb_Sharpen_BFS_L.CheckedChanged += new System.EventHandler(this.ckb_Sharpen_BFS_L_CheckedChanged);
             // 
             // label19
             // 
@@ -1266,6 +1411,18 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "右箭头识别区域";
             // 
+            // ckb_Sharpen_BFS_R
+            // 
+            this.ckb_Sharpen_BFS_R.AutoSize = true;
+            this.ckb_Sharpen_BFS_R.Location = new System.Drawing.Point(288, 75);
+            this.ckb_Sharpen_BFS_R.Name = "ckb_Sharpen_BFS_R";
+            this.ckb_Sharpen_BFS_R.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.ckb_Sharpen_BFS_R.Size = new System.Drawing.Size(75, 21);
+            this.ckb_Sharpen_BFS_R.TabIndex = 23;
+            this.ckb_Sharpen_BFS_R.Text = "锐化截图";
+            this.ckb_Sharpen_BFS_R.UseVisualStyleBackColor = true;
+            this.ckb_Sharpen_BFS_R.CheckedChanged += new System.EventHandler(this.ckb_Sharpen_BFS_R_CheckedChanged);
+            // 
             // label26
             // 
             this.label26.AutoSize = true;
@@ -1452,163 +1609,6 @@
             this.label32.TabIndex = 14;
             this.label32.Text = "，";
             // 
-            // ckb_Sharpen_BFS_L
-            // 
-            this.ckb_Sharpen_BFS_L.AutoSize = true;
-            this.ckb_Sharpen_BFS_L.Location = new System.Drawing.Point(285, 78);
-            this.ckb_Sharpen_BFS_L.Name = "ckb_Sharpen_BFS_L";
-            this.ckb_Sharpen_BFS_L.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.ckb_Sharpen_BFS_L.Size = new System.Drawing.Size(75, 21);
-            this.ckb_Sharpen_BFS_L.TabIndex = 19;
-            this.ckb_Sharpen_BFS_L.Text = "锐化截图";
-            this.ckb_Sharpen_BFS_L.UseVisualStyleBackColor = true;
-            this.ckb_Sharpen_BFS_L.CheckedChanged += new System.EventHandler(this.ckb_Sharpen_BFS_L_CheckedChanged);
-            // 
-            // ckb_Sharpen_BFS_R
-            // 
-            this.ckb_Sharpen_BFS_R.AutoSize = true;
-            this.ckb_Sharpen_BFS_R.Location = new System.Drawing.Point(288, 75);
-            this.ckb_Sharpen_BFS_R.Name = "ckb_Sharpen_BFS_R";
-            this.ckb_Sharpen_BFS_R.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.ckb_Sharpen_BFS_R.Size = new System.Drawing.Size(75, 21);
-            this.ckb_Sharpen_BFS_R.TabIndex = 23;
-            this.ckb_Sharpen_BFS_R.Text = "锐化截图";
-            this.ckb_Sharpen_BFS_R.UseVisualStyleBackColor = true;
-            this.ckb_Sharpen_BFS_R.CheckedChanged += new System.EventHandler(this.ckb_Sharpen_BFS_R_CheckedChanged);
-            // 
-            // ckb_Sharpen_R
-            // 
-            this.ckb_Sharpen_R.AutoSize = true;
-            this.ckb_Sharpen_R.Location = new System.Drawing.Point(285, 78);
-            this.ckb_Sharpen_R.Name = "ckb_Sharpen_R";
-            this.ckb_Sharpen_R.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.ckb_Sharpen_R.Size = new System.Drawing.Size(75, 21);
-            this.ckb_Sharpen_R.TabIndex = 20;
-            this.ckb_Sharpen_R.Text = "锐化截图";
-            this.ckb_Sharpen_R.UseVisualStyleBackColor = true;
-            this.ckb_Sharpen_R.CheckedChanged += new System.EventHandler(this.ckb_Sharpen_R_CheckedChanged);
-            // 
-            // ckb_Sharpen_MB
-            // 
-            this.ckb_Sharpen_MB.AutoSize = true;
-            this.ckb_Sharpen_MB.Location = new System.Drawing.Point(288, 75);
-            this.ckb_Sharpen_MB.Name = "ckb_Sharpen_MB";
-            this.ckb_Sharpen_MB.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.ckb_Sharpen_MB.Size = new System.Drawing.Size(75, 21);
-            this.ckb_Sharpen_MB.TabIndex = 23;
-            this.ckb_Sharpen_MB.Text = "锐化截图";
-            this.ckb_Sharpen_MB.UseVisualStyleBackColor = true;
-            this.ckb_Sharpen_MB.CheckedChanged += new System.EventHandler(this.ckb_Sharpen_MB_CheckedChanged);
-            // 
-            // tb_BFS_R_Interval
-            // 
-            this.tb_BFS_R_Interval.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.tb_BFS_R_Interval.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tb_BFS_R_Interval.Location = new System.Drawing.Point(158, 30);
-            this.tb_BFS_R_Interval.Name = "tb_BFS_R_Interval";
-            this.tb_BFS_R_Interval.Size = new System.Drawing.Size(80, 16);
-            this.tb_BFS_R_Interval.TabIndex = 20;
-            this.tb_BFS_R_Interval.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.tb_BFS_R_Interval.TextChanged += new System.EventHandler(this.tb_BFS_R_Interval_TextChanged);
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(21, 30);
-            this.label20.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(97, 17);
-            this.label20.TabIndex = 19;
-            this.label20.Text = "截屏间隔(ms) ：";
-            // 
-            // label27
-            // 
-            this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(21, 60);
-            this.label27.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(145, 17);
-            this.label27.TabIndex = 19;
-            this.label27.Text = "普通技能持续时间(ms) ：";
-            // 
-            // tb_BFS_CVZ_CX_time
-            // 
-            this.tb_BFS_CVZ_CX_time.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.tb_BFS_CVZ_CX_time.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tb_BFS_CVZ_CX_time.Location = new System.Drawing.Point(158, 60);
-            this.tb_BFS_CVZ_CX_time.Name = "tb_BFS_CVZ_CX_time";
-            this.tb_BFS_CVZ_CX_time.Size = new System.Drawing.Size(80, 16);
-            this.tb_BFS_CVZ_CX_time.TabIndex = 20;
-            this.tb_BFS_CVZ_CX_time.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.tb_BFS_CVZ_CX_time.TextChanged += new System.EventHandler(this.tb_BFS_CVZ_CX_time_TextChanged);
-            // 
-            // label33
-            // 
-            this.label33.AutoSize = true;
-            this.label33.Location = new System.Drawing.Point(21, 90);
-            this.label33.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label33.Name = "label33";
-            this.label33.Size = new System.Drawing.Size(145, 17);
-            this.label33.TabIndex = 19;
-            this.label33.Text = "强化技能持续时间(ms) ：";
-            // 
-            // tb_BFS_PowerfulTime
-            // 
-            this.tb_BFS_PowerfulTime.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.tb_BFS_PowerfulTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tb_BFS_PowerfulTime.Location = new System.Drawing.Point(158, 90);
-            this.tb_BFS_PowerfulTime.Name = "tb_BFS_PowerfulTime";
-            this.tb_BFS_PowerfulTime.Size = new System.Drawing.Size(80, 16);
-            this.tb_BFS_PowerfulTime.TabIndex = 20;
-            this.tb_BFS_PowerfulTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.tb_BFS_PowerfulTime.TextChanged += new System.EventHandler(this.tb_BFS_PowerfulTime_TextChanged);
-            // 
-            // label34
-            // 
-            this.label34.AutoSize = true;
-            this.label34.Location = new System.Drawing.Point(22, 131);
-            this.label34.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label34.Name = "label34";
-            this.label34.Size = new System.Drawing.Size(116, 17);
-            this.label34.TabIndex = 21;
-            this.label34.Text = "自动使用强化技能：";
-            // 
-            // rb_BFS_APF_Disable
-            // 
-            this.rb_BFS_APF_Disable.AutoSize = true;
-            this.rb_BFS_APF_Disable.Location = new System.Drawing.Point(136, 127);
-            this.rb_BFS_APF_Disable.Name = "rb_BFS_APF_Disable";
-            this.rb_BFS_APF_Disable.Size = new System.Drawing.Size(50, 21);
-            this.rb_BFS_APF_Disable.TabIndex = 22;
-            this.rb_BFS_APF_Disable.TabStop = true;
-            this.rb_BFS_APF_Disable.Text = "禁用";
-            this.rb_BFS_APF_Disable.UseVisualStyleBackColor = true;
-            this.rb_BFS_APF_Disable.CheckedChanged += new System.EventHandler(this.rb_BFS_APF_Disable_CheckedChanged);
-            // 
-            // rb_BFS_APF_Enable
-            // 
-            this.rb_BFS_APF_Enable.AutoSize = true;
-            this.rb_BFS_APF_Enable.Location = new System.Drawing.Point(208, 127);
-            this.rb_BFS_APF_Enable.Name = "rb_BFS_APF_Enable";
-            this.rb_BFS_APF_Enable.Size = new System.Drawing.Size(50, 21);
-            this.rb_BFS_APF_Enable.TabIndex = 22;
-            this.rb_BFS_APF_Enable.TabStop = true;
-            this.rb_BFS_APF_Enable.Text = "启用";
-            this.rb_BFS_APF_Enable.UseVisualStyleBackColor = true;
-            this.rb_BFS_APF_Enable.CheckedChanged += new System.EventHandler(this.rb_BFS_APF_Disable_CheckedChanged);
-            // 
-            // rb_BFS_APF_Enable_SP
-            // 
-            this.rb_BFS_APF_Enable_SP.AutoSize = true;
-            this.rb_BFS_APF_Enable_SP.Location = new System.Drawing.Point(136, 154);
-            this.rb_BFS_APF_Enable_SP.Name = "rb_BFS_APF_Enable_SP";
-            this.rb_BFS_APF_Enable_SP.Size = new System.Drawing.Size(133, 21);
-            this.rb_BFS_APF_Enable_SP.TabIndex = 22;
-            this.rb_BFS_APF_Enable_SP.TabStop = true;
-            this.rb_BFS_APF_Enable_SP.Text = "启用【CVZ一起按】";
-            this.rb_BFS_APF_Enable_SP.UseVisualStyleBackColor = true;
-            this.rb_BFS_APF_Enable_SP.CheckedChanged += new System.EventHandler(this.rb_BFS_APF_Disable_CheckedChanged);
-            // 
             // btn_SetLogForm
             // 
             this.btn_SetLogForm.BackColor = System.Drawing.Color.SlateGray;
@@ -1656,7 +1656,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(791, 528);
+            this.ClientSize = new System.Drawing.Size(915, 528);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.btn_SetLogForm);
             this.Controls.Add(this.btn_SetKeyMatch);

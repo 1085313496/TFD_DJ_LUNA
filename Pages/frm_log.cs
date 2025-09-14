@@ -32,6 +32,11 @@ namespace TFD_DJ_LUNA
             {
                 this.BeginInvoke(new Action(() =>
                 {
+                    if (!this.IsHandleCreated)
+                        return;
+                    if (!this.rtb.IsHandleCreated)
+                        return;
+
                     if (rtb.Text.Length > rtb.MaxLength * 0.75)
                     {
                         rtb.Clear();
