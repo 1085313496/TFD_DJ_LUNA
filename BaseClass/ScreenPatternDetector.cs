@@ -430,7 +430,6 @@ namespace TFD_DJ_LUNA
             Pt = new System.Drawing.Point(0, 0);
             OutImg = null;
 
-
             using (Mat mat_template_Ori = BitmapToMat(templateImg))
             using (Mat mat_screen = BitmapToMat(screenBitmap))  //截图
             {
@@ -479,7 +478,23 @@ namespace TFD_DJ_LUNA
                         case 2:
                             #region 手动掩码
                             Mat mask0 = BitmapToMat(templateMask);
-                            Cv2.CvtColor(mask0, mask, ColorConversionCodes.BGR2GRAY);
+                            Mat mask1 = new Mat();
+
+                            if (ScaleFactor != 1)
+                            {
+                                //使用【同一个】scaleFactor来计算模板的新尺寸（保持宽高比！）
+                                OpenCvSharp.Size newTemplateSize = new OpenCvSharp.Size(
+                                    (int)Math.Round(mask0.Width * ScaleFactor), // 宽用同一个因子
+                                    (int)Math.Round(mask0.Height * ScaleFactor) // 高用同一个因子
+                                );
+                                Cv2.Resize(mask0, mask1, newTemplateSize);
+                            }
+                            else
+                            {
+                                mask1 = mask0;
+                            }
+
+                            Cv2.CvtColor(mask1, mask, ColorConversionCodes.BGR2GRAY);
                             #endregion
                             break;
                         default: break;
@@ -576,6 +591,19 @@ namespace TFD_DJ_LUNA
                                 method: TemplateMatchModes.CCoeffNormed,
                                 mask: mask
                             );
+
+                            if (SaveImg)
+                            {
+                                #region 保存结果图像
+                                //保存结果图像
+                                string Dir = string.Format("{0}\\截图\\{1}", TFD_LUNA.rootPath, "BGR");
+                                if (!System.IO.Directory.Exists(Dir))
+                                    System.IO.Directory.CreateDirectory(Dir);
+                                mat_screen.SaveImage(string.Format("{0}\\{1}_截图.png", Dir, DateTime.Now.ToString("mm_ss_fff")));
+                                mat_template.SaveImage(string.Format("{0}\\{1}_模板.png", Dir, DateTime.Now.ToString("mm_ss_fff")));
+                                mask.SaveImage(string.Format("{0}\\{1}_模板掩码.png", Dir, DateTime.Now.ToString("mm_ss_fff")));
+                                #endregion
+                            }
                             #endregion
                             break;
                     }
@@ -583,7 +611,7 @@ namespace TFD_DJ_LUNA
                     //查找最佳匹配位置
                     Cv2.MinMaxLoc(result, out minVal, out MaxVal, out minLoc, out maxLoc);
 
-                    #region  绘制矩形框标记匹配位置（假设我们使用CCoeffNormed，最大值位置是最佳匹配）
+                    #region  绘制矩形框标记匹配位置（假设使用CCoeffNormed，最大值位置是最佳匹配）
                     OpenCvSharp.Point matchLoc = maxLoc;
                     Cv2.Rectangle(
                         img: mat_screen,
@@ -642,7 +670,24 @@ namespace TFD_DJ_LUNA
             }
             return bitmap;
         }
+        /// <summary>
+        /// 保存截图到文件
+        /// </summary>
+        /// <param name="img"></param>
+        /// <param name="DateInfo"></param>
+        /// <param name="Foldername"></param>
+        private void SaveScreenImg(Bitmap img, string DateInfo, string Foldername = "截屏")
+        {
+            try
+            {
+                string Dir = string.Format("{0}\\截图\\{1}", TFD_LUNA.rootPath, Foldername);
+                if (!System.IO.Directory.Exists(Dir))
+                    System.IO.Directory.CreateDirectory(Dir);
 
+                img.Save(string.Format("{0}\\{1}_0.png", Dir, DateInfo), ImageFormat.Png);
+            }
+            catch { }
+        }
         /// <summary>
         /// Gamma校正
         /// </summary>

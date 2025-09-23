@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
@@ -788,8 +789,91 @@ namespace TFD_DJ_LUNA
         public void SendKeyPress(byte vkCode)
         {
             SendKeyDown(vkCode);
-            //System.Threading.Thread.Sleep(200);
             SendKeyUp(vkCode);
+        }
+        public void SendKeyPress(byte vkCode, int interval)
+        {
+            SendKeyDown(vkCode);
+            if (interval > 0)
+                Thread.Sleep(interval);
+            SendKeyUp(vkCode);
+        }
+
+        /// <summary>
+        /// 同时按下多个按键
+        /// </summary>
+        /// <param name="keys"></param>
+        /// <exception cref="Win32Exception"></exception>
+        public void SendMultiKeysPress(Keys[] keys)
+        {
+            Input[] input = new Input[keys.Length * 2];
+
+            //设置按下事件
+            for (int i = 0; i < keys.Length; i++)
+            {
+                input[i] = new Input();
+                input[i].type = InputType.KEYBOARD;
+                input[i].U.ki.wVk = (short)keys[i];
+                input[i].U.ki.wScan = 0;
+                input[i].U.ki.dwFlags = WindowsConstant.KEYEVENTF_KEYDOWN;
+                input[i].U.ki.time = NativeMethods.GetTickCount();
+                input[i].U.ki.dwExtraInfo = IntPtr.Zero;
+            }
+
+            // 设置释放事件
+            for (int i = 0; i < keys.Length; i++)
+            {
+                int index = keys.Length + i;
+                input[index] = new Input();
+                input[index].type = InputType.KEYBOARD; ;
+                input[index].U.ki.wVk = (short)keys[i];
+                input[index].U.ki.wScan = 0;
+                input[index].U.ki.dwFlags = WindowsConstant.KEYEVENTF_KEYUP;
+                input[index].U.ki.time = 0;
+                input[index].U.ki.dwExtraInfo = IntPtr.Zero;
+            }
+
+            if (NativeMethods.SendInput((uint)input.Length, input, Marshal.SizeOf(typeof(Input))) != input.Length)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+        }
+
+        public void SendMultiKeysPress(byte[] keys)
+        {
+            Input[] input = new Input[keys.Length * 2];
+
+            //设置按下事件
+            for (int i = 0; i < keys.Length; i++)
+            {
+                input[i] = new Input();
+                input[i].type = InputType.KEYBOARD;
+                input[i].U.ki.wVk = keys[i];
+                input[i].U.ki.dwFlags = WindowsConstant.KEYEVENTF_KEYDOWN;
+                input[i].U.ki.time = 0;// NativeMethods.GetTickCount();
+
+                input[i].U.ki.wScan = 0;
+                input[i].U.ki.dwExtraInfo = IntPtr.Zero;
+            }
+
+            // 设置释放事件
+            for (int i = 0; i < keys.Length; i++)
+            {
+                int index = keys.Length + i;
+                input[index] = new Input();
+                input[index].type = InputType.KEYBOARD; ;
+                input[index].U.ki.wVk = keys[i];
+                input[index].U.ki.dwFlags = WindowsConstant.KEYEVENTF_KEYUP;
+                input[index].U.ki.time = 0;// NativeMethods.GetTickCount();
+
+                input[index].U.ki.wScan = 0;
+                input[index].U.ki.dwExtraInfo = IntPtr.Zero;
+            }
+
+            if (NativeMethods.SendInput((uint)input.Length, input, Marshal.SizeOf(typeof(Input))) != input.Length)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
         }
         #endregion
 

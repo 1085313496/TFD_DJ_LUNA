@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.Media;
+using System.Threading;
 using System.Windows.Forms;
+using TFD_DJ_LUNA.BaseClass;
 using TFD_DJ_LUNA.Tools;
 
 namespace TFD_DJ_LUNA
@@ -16,11 +18,11 @@ namespace TFD_DJ_LUNA
         /// 辅助流切换按键快捷键 
         /// </summary>
         public string HotKey_Switch { get; set; }
-
         /// <summary>
-        /// 当前页面状态 0查看 1编辑状态
+        /// 切换打点模式 【在 当前打点模式 和 只按左键 两种之间切换】
         /// </summary>
-        public bool PageEditable = false;
+        public string HotKey_SwitchShootMode { get; set; }
+
 
         TFD_LUNA tFD_LUNA = new TFD_LUNA();
 
@@ -34,12 +36,11 @@ namespace TFD_DJ_LUNA
             this.Disposed += Form1_Disposed;
             MessageShowList.SendNotice += MessageShowList_SendNotice;
 
-            SetReadonly();
-
             LoadIni();
             LoadParams();
 
             SetScanner();
+            SetMouseHook();
         }
 
         /// <summary>
@@ -50,6 +51,7 @@ namespace TFD_DJ_LUNA
         private void Form1_Disposed(object sender, EventArgs e)
         {
             UnHookSanner();
+            UnHookMouseHook();
 
             if (tFD_LUNA != null)
             {
@@ -82,33 +84,35 @@ namespace TFD_DJ_LUNA
             catch { }
         }
 
-
         /// <summary>
         /// 加载配置文件
         /// </summary>
         private void LoadIni()
         {
-            HotKey_Global = Common.GetIniParamVal("全局设置", "HotKey_Global");
-            HotKey_Global = string.IsNullOrWhiteSpace(HotKey_Global) ? "F5" : HotKey_Global.ToUpper();
+            string _k0 = Common.GetIniParamVal("全局设置", "HotKey_Global");
+            HotKey_Global = string.IsNullOrWhiteSpace(_k0) ? "F5" : _k0.ToUpper();
+            tb_HotKey_Global.Text = HotKey_Global;
 
-            HotKey_Switch = Common.GetIniParamVal("辅助流设置", "HotKey_Switch");
-            HotKey_Switch = string.IsNullOrWhiteSpace(HotKey_Switch) ? "F6" : HotKey_Switch.ToUpper();
+            string _k1 = Common.GetIniParamVal("辅助流设置", "HotKey_Switch");
+            HotKey_Switch = string.IsNullOrWhiteSpace(_k1) ? "F6" : _k1.ToUpper();
+            tb_HotKey_Switch.Text = HotKey_Switch;
+
+            string _k = Common.GetIniParamVal("战地演唱会设置", "HotKey_SwitchShootMode");
+            HotKey_SwitchShootMode = string.IsNullOrWhiteSpace(_k) ? "F6" : _k.ToUpper();
+            tb_HotKey_SwitchShootMode.Text = HotKey_SwitchShootMode;
         }
         /// <summary>
         /// 加载参数到界面控件
         /// </summary>
         private void LoadParams()
         {
-            tb_HotKey_Global.Text = HotKey_Global;
-            tb_HotKey_Switch.Text = HotKey_Switch;
-
             tb_ScreenShotInterval.Text = tFD_LUNA.ScreenShotInterval.ToString();
             ckb_ManualSPSKILL.Checked = tFD_LUNA.ManualSPSKILL == 1;
+            ckb_BFL_AutoShot.Checked = tFD_LUNA.BFL_AutoShot;
 
             #region 加载战地炮台设置
             if (tFD_LUNA != null)
             {
-                tb_BFS_R_Interval.Text = tFD_LUNA.BFS_R_Interval.ToString();
                 tb_BFS_CVZ_CX_time.Text = tFD_LUNA.CVZ_CX_time.ToString();
                 tb_BFS_PowerfulTime.Text = tFD_LUNA.PowerfulTime.ToString();
 
@@ -116,8 +120,22 @@ namespace TFD_DJ_LUNA
                 {
                     case 0: rb_BFS_APF_Disable.Checked = true; break;
                     case 1: rb_BFS_APF_Enable.Checked = true; break;
-                    case 2: rb_BFS_APF_Enable_SP.Checked = true; break;
                 }
+
+                #region 打点方式
+                switch (tFD_LUNA.BeatMode)
+                {
+                    case 0: rb_BeatMode_0.Checked = true; break;
+                    case 1: rb_BeatMode_1.Checked = true; break;
+                    case 2: rb_BeatMode_2.Checked = true; break;
+                    case 3: rb_BeatMode_3.Checked = true; break;
+                    case 4: rb_BeatMode_4.Checked = true; break;
+                    case 5: rb_BeatMode_5.Checked = true; break;
+                    case 6: rb_BeatMode_6.Checked = true; break;
+                    case 7: rb_BeatMode_7.Checked = true; break;
+                    case 8: rb_BeatMode_8.Checked = true; break;
+                }
+                #endregion
             }
             #endregion
 
@@ -149,161 +167,19 @@ namespace TFD_DJ_LUNA
             }
             #endregion
 
-            #region 
-            if (tFD_LUNA.SwitchType_Noise == 1)
-            {
-                rg_SWT_1.Checked = true;
-            }
-            else
-            {
-                rg_SWT_2.Checked = true;
-            }
-            #endregion
-
-            #region
-            if (tFD_LUNA.SwitchType_Assist == 1)
-            {
-                rb_CandV.Checked = true;
-            }
-            else
-            {
-                rb_CorV.Checked = true;
-            }
-            #endregion
-
-            #region 图像处理格式
-            switch (tFD_LUNA.RecognizeSetting_Rhombus.OpencvMode)
-            {
-                case 1: rg_R_Grey.Checked = true; break;
-                case 2: rg_R_HSV.Checked = true; break;
-                case 0:
-                default: rg_R_bgr.Checked = true; break;
-            }
-            switch (tFD_LUNA.RecognizeSetting_MuseBar.OpencvMode)
-            {
-                case 1: rg_MB_Grey.Checked = true; break;
-                case 2: rg_MB_HSV.Checked = true; break;
-                case 0:
-                default: rg_MB_bgr.Checked = true; break;
-            }
-            switch (tFD_LUNA.RS_BFS_L.OpencvMode)
-            {
-                case 1: rb_BFS_L_Grey.Checked = true; break;
-                case 2: rb_BFS_L_HSV.Checked = true; break;
-                case 0:
-                default: rb_BFS_L_BGR.Checked = true; break;
-            }
-            switch (tFD_LUNA.RS_BFS_R.OpencvMode)
-            {
-                case 1: rb_BFS_R_GREY.Checked = true; break;
-                case 2: rb_BFS_R_HSV.Checked = true; break;
-                case 0:
-                default: rb_BFS_R_BGR.Checked = true; break;
-            }
-            #endregion
-
             #region 识别区域赋值
             if (tFD_LUNA.RecognizeSetting_Rhombus != null)
-            {
-                tb_RX.Text = tFD_LUNA.RecognizeSetting_Rhombus.Area.X.ToString();
-                tb_RY.Text = tFD_LUNA.RecognizeSetting_Rhombus.Area.Y.ToString();
-                tb_RW.Text = tFD_LUNA.RecognizeSetting_Rhombus.Area.Width.ToString();
-                tb_RH.Text = tFD_LUNA.RecognizeSetting_Rhombus.Area.Height.ToString();
-                tkb_R.Value = (int)(tFD_LUNA.RecognizeSetting_Rhombus.Threshold * 100);
-                ckb_Sharpen_R.Checked = tFD_LUNA.RecognizeSetting_Rhombus.Sharpen == 1;
-            }
+                RAS_Normal_Block.Init(tFD_LUNA.RecognizeSetting_Rhombus);
 
             if (tFD_LUNA.RecognizeSetting_MuseBar != null)
-            {
-                tb_MBX.Text = tFD_LUNA.RecognizeSetting_MuseBar.Area.X.ToString();
-                tb_MBY.Text = tFD_LUNA.RecognizeSetting_MuseBar.Area.Y.ToString();
-                tb_MBW.Text = tFD_LUNA.RecognizeSetting_MuseBar.Area.Width.ToString();
-                tb_MBH.Text = tFD_LUNA.RecognizeSetting_MuseBar.Area.Height.ToString();
-                tkb_MB.Value = (int)(tFD_LUNA.RecognizeSetting_MuseBar.Threshold * 100);
-                ckb_Sharpen_MB.Checked = tFD_LUNA.RecognizeSetting_MuseBar.Sharpen == 1;
-            }
-
-            if (tFD_LUNA.RS_BFS_L != null)
-            {
-                tb_BFS_L_X.Text = tFD_LUNA.RS_BFS_L.Area.X.ToString();
-                tb_BFS_L_Y.Text = tFD_LUNA.RS_BFS_L.Area.Y.ToString();
-                tb_BFS_L_W.Text = tFD_LUNA.RS_BFS_L.Area.Width.ToString();
-                tb_BFS_L_H.Text = tFD_LUNA.RS_BFS_L.Area.Height.ToString();
-                tkb_BFS_L.Value = (int)(tFD_LUNA.RS_BFS_L.Threshold * 100);
-                ckb_Sharpen_BFS_L.Checked = tFD_LUNA.RS_BFS_L.Sharpen == 1;
-            }
+                RAS_MuseBar.Init(tFD_LUNA.RecognizeSetting_MuseBar);
 
             if (tFD_LUNA.RS_BFS_R != null)
-            {
-                tb_BFS_R_X.Text = tFD_LUNA.RS_BFS_R.Area.X.ToString();
-                tb_BFS_R_Y.Text = tFD_LUNA.RS_BFS_R.Area.Y.ToString();
-                tb_BFS_R_W.Text = tFD_LUNA.RS_BFS_R.Area.Width.ToString();
-                tb_BFS_R_H.Text = tFD_LUNA.RS_BFS_R.Area.Height.ToString();
-                tkb_BFS_R.Value = (int)(tFD_LUNA.RS_BFS_R.Threshold * 100);
-                ckb_Sharpen_BFS_R.Checked = tFD_LUNA.RS_BFS_R.Sharpen == 1;
-            }
+                RAS_BFL_R.Init(tFD_LUNA.RS_BFS_R);
             #endregion
         }
 
-        /// <summary>
-        /// 编辑页面状态改变事件，切换页面只读或可编辑状态
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void swb_EditPage_StateChanged(object sender, EventArgs e)
-        {
-            PageEditable = !PageEditable;
-            SetReadonly();
-        }
-        /// <summary>
-        /// 设置控件为只读或可编辑状态
-        /// </summary>
-        private void SetReadonly()
-        {
-            tb_HotKey_Global.ReadOnly = !PageEditable;
-            tb_HotKey_Switch.ReadOnly = !PageEditable;
-            tb_ScreenShotInterval.ReadOnly = !PageEditable;
-
-            //rb_Mode_Noise.Enabled = PageEditable;
-            //rb_Mode_Assist.Enabled = PageEditable;
-            //rg_SWT_1.Enabled = PageEditable;
-            //rg_SWT_2.Enabled = PageEditable;
-            //rb_CandV.Enabled = PageEditable;
-            //rb_CorV.Enabled = PageEditable;
-
-            ckb_ManualSPSKILL.Enabled = PageEditable;
-
-            tb_BFS_R_Interval.ReadOnly = !PageEditable;
-            tb_BFS_CVZ_CX_time.ReadOnly = !PageEditable;
-            tb_BFS_PowerfulTime.ReadOnly = !PageEditable;
-
-            tb_RX.ReadOnly = !PageEditable;
-            tb_RY.ReadOnly = !PageEditable;
-            tb_RW.ReadOnly = !PageEditable;
-            tb_RH.ReadOnly = !PageEditable;
-
-            tb_MBX.ReadOnly = !PageEditable;
-            tb_MBY.ReadOnly = !PageEditable;
-            tb_MBW.ReadOnly = !PageEditable;
-            tb_MBH.ReadOnly = !PageEditable;
-
-            tb_BFS_L_X.ReadOnly = !PageEditable;
-            tb_BFS_L_Y.ReadOnly = !PageEditable;
-            tb_BFS_L_W.ReadOnly = !PageEditable;
-            tb_BFS_L_H.ReadOnly = !PageEditable;
-
-            tb_BFS_R_X.ReadOnly = !PageEditable;
-            tb_BFS_R_Y.ReadOnly = !PageEditable;
-            tb_BFS_R_W.ReadOnly = !PageEditable;
-            tb_BFS_R_H.ReadOnly = !PageEditable;
-
-            tkb_MB.Enabled = PageEditable;
-            tkb_R.Enabled = PageEditable;
-            tkb_BFS_L.Enabled = PageEditable;
-            tkb_BFS_R.Enabled = PageEditable;
-        }
-
-
+        #region 其他参数调整
         /// <summary>
         /// 手动设置灵感条满了需要手动使用强化技能
         /// </summary>
@@ -314,16 +190,15 @@ namespace TFD_DJ_LUNA
             if (ckb_ManualSPSKILL.Checked)
             {
                 tFD_LUNA.ManualSPSKILL = 1;
-                MessageShowList.SendEventMsg("灵感条满了需要手动使用强化技能", 1);
+                MessageShowList.SendEventMsg("[辅助流]灵感条满了需要手动使用强化技能", 1);
             }
             else
             {
                 tFD_LUNA.ManualSPSKILL = 0;
-                MessageShowList.SendEventMsg("灵感条满了无所谓", 1);
+                MessageShowList.SendEventMsg("[辅助流]灵感条满了无所谓", 1);
             }
             Common.SaveIniParamVal("辅助流设置", "ManualSPSKILL", tFD_LUNA.ManualSPSKILL.ToString());
         }
-
         /// <summary>
         /// 手动输入数值设置截图间隔
         /// </summary>
@@ -342,7 +217,6 @@ namespace TFD_DJ_LUNA
                 MessageShowList.SendEventMsg("无效的截图间隔: " + tb_ScreenShotInterval.Text, 2);
             }
         }
-
         /// <summary>
         /// 启用/禁用截图保存功能
         /// </summary>
@@ -361,6 +235,44 @@ namespace TFD_DJ_LUNA
                 MessageShowList.SendEventMsg("已禁用截图保存功能", 1);
             }
         }
+        /// <summary>
+        /// 打点方式切换
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void rb_BeatMode_Changed(object sender, EventArgs e)
+        {
+            RadioButton rb = sender as RadioButton;
+            if (!rb.Checked)
+                return;
+
+            string txt = rb.Text;
+            int tagVal = Convert.ToInt32(Common.GetObj(rb.Tag, true));
+            if (tFD_LUNA != null)
+            {
+                tFD_LUNA.BeatMode = tagVal;
+                Common.SaveIniParamVal("全局设置", "BeatMode", tagVal.ToString());
+            }
+            MessageShowList.SendEventMsg("已切换打点方式: " + txt, 1);
+        }
+        /// <summary>
+        /// 使用强化技能后自动开枪切换
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ckb_BFL_AutoShot_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                CheckBox ckb = sender as CheckBox;
+                int _bflas = ckb.Checked ? 1 : 0;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.BFL_AutoShot = (_bflas == 1);
+                Common.SaveIniParamVal("战地演唱会设置", "BFL_AutoShot", _bflas.ToString());
+            }
+            catch { }
+        }
+        #endregion
 
         #region 日志弹窗
         /// <summary>
@@ -495,6 +407,7 @@ namespace TFD_DJ_LUNA
         }
         #endregion
 
+        #region 键盘鼠标钩子 快捷键
         #region 键盘钩子
         /// <summary>
         /// 键盘钩子
@@ -533,19 +446,7 @@ namespace TFD_DJ_LUNA
                 bool holdShift = e.Shift;
                 bool holdAlt = e.Alt;
 
-                string kc = e.KeyCode.ToString();
-                if (string.IsNullOrWhiteSpace(kc))
-                    return;
-
-                if (HotKey_Global == kc.ToUpper())
-                {
-                    RunMianFunction();
-                }
-                else if (HotKey_Switch == kc.ToUpper())
-                {
-                    SwitchCurrentKey();
-                }
-
+                KeyMouseCaptrued(e.KeyCode.ToString(), 1, e);
             }
             catch (Exception ex) { }
         }
@@ -562,6 +463,102 @@ namespace TFD_DJ_LUNA
                 }
             }
             catch (Exception ex) { }
+        }
+        #endregion
+
+        #region 鼠标钩子
+        /// <summary>
+        /// 鼠标钩子
+        /// </summary>
+        private GlobalMouseHook MSH = null;
+        /// <summary>
+        /// 安装鼠标钩子
+        /// </summary>
+        private void SetMouseHook()
+        {
+            try
+            {
+                MSH = new GlobalMouseHook();
+
+                MSH.CaptureMoveEvents = false;
+                MSH.CaptureClickEvents = true;
+                MSH.CaptureWheelEvents = true;
+
+                // MSH.MouseAction += MouseHook_MouseAction;
+                MSH.MouseUp += MouseHook_MouseUp;
+
+                MSH.StartHook();
+            }
+            catch (Exception ex)
+            {
+                MessageShowList.SendEventMsg(ex.Message);
+            }
+        }
+        /// <summary>
+        /// 卸载鼠标钩子
+        /// </summary>
+        private void UnHookMouseHook()
+        {
+            try
+            {
+                MSH.Dispose();
+            }
+            catch { }
+        }
+        private void MouseHook_MouseAction(object sender, MouseEventArgs e)
+        {
+            // 处理所有鼠标动作
+            MessageShowList.SendEventMsg($"动作: {e.Button} at ({e.X}, {e.Y})");
+        }
+        private void MouseHook_MouseUp(object sender, GlobalMouseHook.MouseClickEventArgs e)
+        {
+            KeyMouseCaptrued(e.Button.ToString(), 2, e);
+            // 处理鼠标释放
+            // MessageShowList.SendEventMsg($"释放: {e.Button} ({e.ButtonId}) at ({e.X}, {e.Y})");
+        }
+        #endregion
+
+        #region  对监听到的按键进行判断，执行快捷键对应的功能
+        /// <summary>
+        /// 钩子捕获到键之后的处理  判断是否是快捷键
+        /// </summary>
+        /// <param name="KeyOrMouse"></param>
+        /// <param name="KMType"></param>
+        /// <param name="ExtraData"></param>
+        private void KeyMouseCaptrued(string KeyOrMouse, int KMType, object ExtraData = null)
+        {
+            //MessageShowList.SendEventMsg(string.Format("释放按键：{0},type={1}",KeyOrMouse,KMType));
+
+            string kc = KeyOrMouse.ToUpper();
+            if (string.IsNullOrWhiteSpace(kc))
+                return;
+
+            if (KMType == 2)
+            {
+                switch (KeyOrMouse)
+                {
+                    case "LEFT": kc = "LBUTTON"; break;
+                    case "RIGHT": kc = "RBUTTON"; break;
+                    case "MIDDLE": kc = "MBUTTON"; break;
+                    case "XBUTTON1": kc = "XBUTTON1"; break;
+                    case "XBUTTON2": kc = "XBUTTON2"; break;
+                }
+            }
+
+            kc = kc.ToUpper();
+            if (HotKey_Global.ToUpper() == kc)
+            {
+                RunMianFunction();
+            }
+            else if (HotKey_Switch.ToUpper() == kc)
+            {
+                SwitchCurrentKey();
+            }
+            else if (HotKey_SwitchShootMode.ToUpper() == kc)
+            {
+                SwitchBeatMode();
+            }
+
         }
         /// <summary>
         /// 运行主功能函数，启动或停止打碟助手
@@ -595,6 +592,7 @@ namespace TFD_DJ_LUNA
                 SetBtnRunStatus(false);
                 tFD_LUNA.Stop();
                 MessageShowList.SendEventMsg("打碟助手已停止", 1);
+                Thread.Sleep(300);
                 CloseLogFrm();
             }
         }
@@ -606,6 +604,15 @@ namespace TFD_DJ_LUNA
             SystemSounds.Beep.Play();
             if (tFD_LUNA != null)
                 tFD_LUNA.ChangeCurrentKey_Assist();
+        }
+        /// <summary>
+        /// 切换打点方式
+        /// </summary>
+        private void SwitchBeatMode()
+        {
+            SystemSounds.Beep.Play();
+            if (tFD_LUNA != null)
+                tFD_LUNA.SwitchBeatMode();
         }
         /// <summary>
         /// 设置运行按钮状态
@@ -632,6 +639,7 @@ namespace TFD_DJ_LUNA
 
         }
         #endregion
+        #endregion
 
         #region 切换运行模式
         private void Rb_Mode_CheckedChanged(object sender, EventArgs e)
@@ -652,6 +660,7 @@ namespace TFD_DJ_LUNA
                 {
                     tFD_LUNA.Mode = 1;
                     modeText = "噪音涌动输出流";
+                    SetRbtextColor(1);
 
                     gb_Assist.Hide();
                     gb_BFS.Hide();
@@ -662,6 +671,7 @@ namespace TFD_DJ_LUNA
                 {
                     tFD_LUNA.Mode = 2;
                     modeText = "辅助流";
+                    SetRbtextColor(2);
 
                     gb_Noise.Hide();
                     gb_BFS.Hide();
@@ -672,6 +682,7 @@ namespace TFD_DJ_LUNA
                 {
                     tFD_LUNA.Mode = 3;
                     modeText = "战地演唱会";
+                    SetRbtextColor(3);
 
                     gb_Assist.Hide();
                     gb_Noise.Hide();
@@ -686,453 +697,18 @@ namespace TFD_DJ_LUNA
                 MessageShowList.SendEventMsg("切换运行模式失败: " + ex.Message, 2);
             }
         }
-        #endregion
-
-        #region 切换噪音涌动输出流设置
-        private void Rb_SwitchType_Noise_CHKChanged(object sender, EventArgs e) { SwitchSwitchType_Noise(); }
-
-        /// <summary>
-        /// 切换噪音涌动输出流设置
-        /// </summary>
-        private void SwitchSwitchType_Noise()
+        private void SetRbtextColor(int _mode)
         {
-            try
-            {
-                if (rg_SWT_1.Checked)
-                {
-                    tFD_LUNA.SwitchType_Noise = 1;
-                }
-                else
-                {
-                    tFD_LUNA.SwitchType_Noise = 0;
-                }
-
-                Common.SaveIniParamVal("噪音涌动输出流设置", "SwitchType_Noise", tFD_LUNA.SwitchType_Noise.ToString());
-                MessageShowList.SendEventMsg("噪音输出流按键已切换为: " + (tFD_LUNA.SwitchType_Noise == 1 ? "依序交替按下CVZ" : "严格按照映射"), 1);
-            }
-            catch (Exception ex)
-            {
-                MessageShowList.SendEventMsg("切换噪音涌动输出流设置失败: " + ex.Message, 2);
-            }
-        }
-        #endregion
-
-        #region 切换辅助流设置
-        private void Rb_SwitchType_Assist_CHKChanged(object sender, EventArgs e) { SwitchSType_Assist(); }
-        private void SwitchSType_Assist()
-        {
-            try
-            {
-                if (rb_CandV.Checked)
-                {
-                    tFD_LUNA.SwitchType_Assist = 1;
-                }
-                else
-                {
-                    tFD_LUNA.SwitchType_Assist = 0;
-                }
-
-                Common.SaveIniParamVal("辅助流设置", "SwitchType_Assist", tFD_LUNA.SwitchType_Assist.ToString());
-                MessageShowList.SendEventMsg("辅助流按键已切换为: " + (tFD_LUNA.SwitchType_Assist == 1 ? "交替按下CV" : "手动切换只按C或V"), 1);
-            }
-            catch (Exception ex)
-            {
-                MessageShowList.SendEventMsg("切换辅助流设置失败: " + ex.Message, 2);
-            }
-        }
-        #endregion
-
-        #region 识别阈值设置
-        private void tkb_R_ValueChanged(object sender, EventArgs e)
-        {
-            double thd = tkb_R.Value / 100.0;
-            if (tFD_LUNA != null)
-                tFD_LUNA.RecognizeSetting_Rhombus.Threshold = thd;
-            lb_THD_R.Text = string.Format("{0:0.00}", thd);
-            Common.SaveIniParamVal("菱形图案识别设置", "Threshold", thd.ToString());
-        }
-
-        private void tkb_MB_ValueChanged(object sender, EventArgs e)
-        {
-            double thd = tkb_MB.Value / 100.0;
-            if (tFD_LUNA != null)
-                tFD_LUNA.RecognizeSetting_MuseBar.Threshold = thd;
-            lb_THD_MB.Text = string.Format("{0:0.00}", thd);
-            Common.SaveIniParamVal("灵感条图案识别设置", "Threshold", thd.ToString());
-        }
-
-        private void tkb_BFS_L_ValueChanged(object sender, EventArgs e)
-        {
-            double thd = tkb_BFS_L.Value / 100.0;
-            if (tFD_LUNA != null)
-                tFD_LUNA.RS_BFS_L.Threshold = thd;
-            lb_THD_BFS_L.Text = string.Format("{0:0.00}", thd);
-            Common.SaveIniParamVal("战地演唱会识别设置_左", "Threshold", thd.ToString());
-        }
-
-        private void tkb_BFS_R_ValueChanged(object sender, EventArgs e)
-        {
-            double thd = tkb_BFS_R.Value / 100.0;
-            if (tFD_LUNA != null)
-                tFD_LUNA.RS_BFS_R.Threshold = thd;
-            lb_THD_BFS_R.Text = string.Format("{0:0.00}", thd);
-            Common.SaveIniParamVal("战地演唱会识别设置_右", "Threshold", thd.ToString());
-        }
-
-        #endregion
-
-        #region 手动框选图案识别区域
-        #region 手动设置菱形图案识别区域
-        private void btn_PickArea_R_Click(object sender, EventArgs e)
-        {
-            this.Hide();
-            frm_PickArea f = new frm_PickArea();
-            f.TopLevel = true;
-            f.Opacity = 0.35;
-            f.PickedArea = tFD_LUNA.RecognizeSetting_Rhombus.Area;
-            if (f.ShowDialog() == DialogResult.OK)
-            {
-                this.Show();
-                this.BringToFront();
-
-                tb_RX.Text = f.PickedArea.X.ToString();
-                tb_RY.Text = f.PickedArea.Y.ToString();
-                tb_RW.Text = f.PickedArea.Width.ToString();
-                tb_RH.Text = f.PickedArea.Height.ToString();
-
-                tFD_LUNA.RecognizeSetting_Rhombus.SetArea(f.PickedArea.X, f.PickedArea.Y, f.PickedArea.Width, f.PickedArea.Height);
-                MessageShowList.SendEventMsg("已选择区域: " + f.PickedArea.ToString(), 1);
-            }
-            else
-            {
-                this.Show();
-                this.BringToFront();
-            }
-        }
-        #endregion
-
-        #region 手动设置灵感条图案识别区域
-        private void btn_PickArea_MB_Click(object sender, EventArgs e)
-        {
-            this.Hide();
-
-            frm_PickArea f = new frm_PickArea();
-            f.TopLevel = true;
-            f.Opacity = 0.35;
-            f.PickedArea = tFD_LUNA.RecognizeSetting_MuseBar.Area;
-            if (f.ShowDialog() == DialogResult.OK)
-            {
-                this.Show();
-                this.BringToFront();
-
-                tb_MBX.Text = f.PickedArea.X.ToString();
-                tb_MBY.Text = f.PickedArea.Y.ToString();
-                tb_MBW.Text = f.PickedArea.Width.ToString();
-                tb_MBH.Text = f.PickedArea.Height.ToString();
-
-                tFD_LUNA.RecognizeSetting_MuseBar.SetArea(f.PickedArea.X, f.PickedArea.Y, f.PickedArea.Width, f.PickedArea.Height);
-                MessageShowList.SendEventMsg("已选择区域: " + f.PickedArea.ToString(), 1);
-            }
-            else
-            {
-                this.Show();
-                this.BringToFront();
-            }
-        }
-        #endregion
-
-        private void btn_PickArea_BFS_L_Click(object sender, EventArgs e)
-        {
-            this.Hide();
-            frm_PickArea f = new frm_PickArea();
-            f.TopLevel = true;
-            f.Opacity = 0.35;
-            f.PickedArea = tFD_LUNA.RS_BFS_L.Area;
-            if (f.ShowDialog() == DialogResult.OK)
-            {
-                this.Show();
-                this.BringToFront();
-
-                tb_BFS_L_X.Text = f.PickedArea.X.ToString();
-                tb_BFS_L_Y.Text = f.PickedArea.Y.ToString();
-                tb_BFS_L_W.Text = f.PickedArea.Width.ToString();
-                tb_BFS_L_H.Text = f.PickedArea.Height.ToString();
-
-                tFD_LUNA.RS_BFS_L.SetArea(f.PickedArea.X, f.PickedArea.Y, f.PickedArea.Width, f.PickedArea.Height);
-                MessageShowList.SendEventMsg("已选择区域: " + f.PickedArea.ToString(), 1);
-            }
-            else
-            {
-                this.Show();
-                this.BringToFront();
-            }
-        }
-
-        private void btn_PickArea_BFS_R_Click(object sender, EventArgs e)
-        {
-            this.Hide();
-            frm_PickArea f = new frm_PickArea();
-            f.TopLevel = true;
-            f.Opacity = 0.35;
-            f.PickedArea = tFD_LUNA.RS_BFS_R.Area;
-            if (f.ShowDialog() == DialogResult.OK)
-            {
-                this.Show();
-                this.BringToFront();
-
-                tb_BFS_R_X.Text = f.PickedArea.X.ToString();
-                tb_BFS_R_Y.Text = f.PickedArea.Y.ToString();
-                tb_BFS_R_W.Text = f.PickedArea.Width.ToString();
-                tb_BFS_R_H.Text = f.PickedArea.Height.ToString();
-
-                tFD_LUNA.RS_BFS_R.SetArea(f.PickedArea.X, f.PickedArea.Y, f.PickedArea.Width, f.PickedArea.Height);
-                MessageShowList.SendEventMsg("已选择区域: " + f.PickedArea.ToString(), 1);
-            }
-            else
-            {
-                this.Show();
-                this.BringToFront();
-            }
-        }
-        #endregion
-
-        #region 手动输入数值设置图案识别区域
-        /// <summary>
-        /// 手动输入数值设置菱形图案识别区域
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Tb_PA_R_Changed(object sender, EventArgs e)
-        {
-            if (int.TryParse(tb_RX.Text, out int x) &&
-                int.TryParse(tb_RY.Text, out int y) &&
-                int.TryParse(tb_RW.Text, out int w) &&
-                int.TryParse(tb_RH.Text, out int h))
-            {
-                if (tFD_LUNA != null)
-                {
-                    tFD_LUNA.RecognizeSetting_Rhombus.SetArea(x, y, w, h);
-                    MessageShowList.SendEventMsg("已设置菱形图案识别区: " + tFD_LUNA.RecognizeSetting_Rhombus.Area.ToString(), 1);
-                }
-            }
-            else
-            {
-                //MessageShowList.SendEventMsg("无效的菱形图案识别区域参数", 2);
-            }
-        }
-
-        /// <summary>
-        /// 手动输入数值设置灵感条图案识别区域
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Tb_PA_MB_Changed(object sender, EventArgs e)
-        {
-            if (int.TryParse(tb_MBX.Text, out int x) &&
-                int.TryParse(tb_MBY.Text, out int y) &&
-                int.TryParse(tb_MBW.Text, out int w) &&
-                int.TryParse(tb_MBH.Text, out int h))
-            {
-                if (tFD_LUNA != null)
-                {
-                    tFD_LUNA.RecognizeSetting_MuseBar.SetArea(x, y, w, h);
-                    MessageShowList.SendEventMsg("已设置灵感条图案识别区: " + tFD_LUNA.RecognizeSetting_MuseBar.Area.ToString(), 1);
-                }
-            }
-            else
-            {
-                //MessageShowList.SendEventMsg("无效的灵感条图案识别区域参数", 2);
-            }
-        }
-
-        /// <summary>
-        /// 手动输入数值设置 战地炮台左边 识别区域
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Tb_PA_BFS_L_Changed(object sender, EventArgs e)
-        {
-            if (int.TryParse(tb_BFS_L_X.Text, out int x) &&
-                int.TryParse(tb_BFS_L_Y.Text, out int y) &&
-                int.TryParse(tb_BFS_L_W.Text, out int w) &&
-                int.TryParse(tb_BFS_L_H.Text, out int h))
-            {
-                if (tFD_LUNA != null)
-                {
-                    tFD_LUNA.RS_BFS_L.SetArea(x, y, w, h);
-                    MessageShowList.SendEventMsg("已设置战地炮台左边识别区: " + tFD_LUNA.RS_BFS_L.Area.ToString(), 1);
-                }
-            }
-            else
-            {
-                //MessageShowList.SendEventMsg("无效的战地炮台左边识别区域参数", 2);
-            }
-        }
-        /// <summary>
-        /// 手动输入数值设置 战地炮台右边 识别区域
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Tb_PA_BFS_R_Changed(object sender, EventArgs e)
-        {
-            if (int.TryParse(tb_BFS_R_X.Text, out int x) &&
-                int.TryParse(tb_BFS_R_Y.Text, out int y) &&
-                int.TryParse(tb_BFS_R_W.Text, out int w) &&
-                int.TryParse(tb_BFS_R_H.Text, out int h))
-            {
-                if (tFD_LUNA != null)
-                {
-                    tFD_LUNA.RS_BFS_R.SetArea(x, y, w, h);
-                    MessageShowList.SendEventMsg("已设置战地炮台右边识别区: " + tFD_LUNA.RS_BFS_R.Area.ToString(), 1);
-                }
-            }
-            else
-            {
-                //MessageShowList.SendEventMsg("无效的战地炮台右边识别区域参数", 2);
-            }
-        }
-        #endregion
-
-        #region 图像处理格式切换
-        /// <summary>
-        /// 菱形图案识别图像处理模式切换事件
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void rg_R_CheckedChanged(object sender, EventArgs e)
-        {
-            RadioButton rb = sender as RadioButton;
-            if (!rb.Checked)
-                return;
-
-            int opencvImgMode = 0;
-            string _modename = rb.Text;
-
-            if (rg_R_bgr.Checked)
-            {
-                opencvImgMode = 0;
-            }
-            else if (rg_R_Grey.Checked)
-            {
-                opencvImgMode = 1;
-            }
-            else if (rg_R_HSV.Checked)
-            {
-                opencvImgMode = 2;
-            }
-
-            if (tFD_LUNA != null)
-            {
-                tFD_LUNA.RecognizeSetting_Rhombus.OpencvMode = opencvImgMode;
-                Common.SaveIniParamVal("菱形图案识别设置", "OpencvMode", opencvImgMode.ToString());
-            }
-
-            MessageShowList.SendEventMsg("已切换OpenCV图像处理模式: " + _modename, 1);
-        }
-
-        /// <summary>
-        /// 战地炮台左边 识别图像处理模式切换事件
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void rg_BFS_L_CheckedChanged(object sender, EventArgs e)
-        {
-            RadioButton rb = sender as RadioButton;
-            if (!rb.Checked)
-                return;
-
-            int opencvImgMode = 0;
-            string _modename = rb.Text;
-
-            if (rb_BFS_L_BGR.Checked)
-            {
-                opencvImgMode = 0;
-            }
-            else if (rb_BFS_L_Grey.Checked)
-            {
-                opencvImgMode = 1;
-            }
-            else if (rb_BFS_L_HSV.Checked)
-            {
-                opencvImgMode = 2;
-            }
-
-            if (tFD_LUNA != null)
-            {
-                tFD_LUNA.RS_BFS_L.OpencvMode = opencvImgMode;
-                Common.SaveIniParamVal("战地演唱会识别设置_左", "OpencvMode", opencvImgMode.ToString());
-            }
-
-            MessageShowList.SendEventMsg("已切换战地炮台左边图像处理模式: " + _modename, 1);
-        }
-        /// <summary>
-        /// 战地炮台右边 识别图像处理模式切换事件
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void rg_BFS_R_CheckedChanged(object sender, EventArgs e)
-        {
-            RadioButton rb = sender as RadioButton;
-            if (!rb.Checked)
-                return;
-
-            int opencvImgMode = 0;
-            string _modename = rb.Text;
-
-            if (rb_BFS_R_BGR.Checked)
-            {
-                opencvImgMode = 0;
-            }
-            else if (rb_BFS_R_GREY.Checked)
-            {
-                opencvImgMode = 1;
-            }
-            else if (rb_BFS_R_HSV.Checked)
-            {
-                opencvImgMode = 2;
-            }
-
-            if (tFD_LUNA != null)
-            {
-                tFD_LUNA.RS_BFS_R.OpencvMode = opencvImgMode;
-                Common.SaveIniParamVal("战地演唱会识别设置_右", "OpencvMode", opencvImgMode.ToString());
-            }
-
-            MessageShowList.SendEventMsg("已切换战地炮台右边图像处理模式: " + _modename, 1);
-        }
-
-        /// <summary>
-        /// 灵感条图像处理模式切换事件
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void rg_MB_Changed(object sender, EventArgs e)
-        {
-            RadioButton rb = sender as RadioButton;
-            if (!rb.Checked)
-                return;
-            int opencvImgMode = 0;
-            string _modename = rb.Text;
-
-            if (rg_MB_bgr.Checked)
-            {
-                opencvImgMode = 0;
-            }
-            else if (rg_MB_Grey.Checked)
-            {
-                opencvImgMode = 1;
-            }
-            else if (rg_MB_HSV.Checked)
-            {
-                opencvImgMode = 2;
-            }
-
-            if (tFD_LUNA != null)
-            {
-                tFD_LUNA.RecognizeSetting_MuseBar.OpencvMode = opencvImgMode;
-                Common.SaveIniParamVal("灵感条图案识别设置", "OpencvMode", opencvImgMode.ToString());
-            }
-            MessageShowList.SendEventMsg("已切换灵感条图像处理模式: " + _modename, 1);
+            //【0[C\V\Z 交替按] 1[左键与 同时按CVZ 交替] 2[只按左键] 3[CVZ同时按] 4[左键与C\V\Z之一轮流按] 5[左键\C\V\Z轮流按] 6[C\V 交替按] 7[切换只按C或V] 8[按照映射] 】
+            rb_BeatMode_0.ForeColor = _mode == 1 ? Color.OrangeRed : Color.Black;
+            rb_BeatMode_1.ForeColor = _mode == 3 ? Color.OrangeRed : Color.Black;
+            rb_BeatMode_2.ForeColor = _mode == 3 ? Color.OrangeRed : Color.Black;
+            rb_BeatMode_3.ForeColor = Color.Black;
+            rb_BeatMode_4.ForeColor = _mode == 3 ? Color.OrangeRed : Color.Black;
+            rb_BeatMode_5.ForeColor = Color.Black;
+            rb_BeatMode_6.ForeColor = _mode == 2 ? Color.OrangeRed : Color.Black;
+            rb_BeatMode_7.ForeColor = _mode == 2 ? Color.OrangeRed : Color.Black;
+            rb_BeatMode_8.ForeColor = Color.Black;
         }
         #endregion
 
@@ -1165,110 +741,111 @@ namespace TFD_DJ_LUNA
 
             return false;
         }
-
-        private void tb_HotKey_Global_TextChanged(object sender, EventArgs e)
-        {
-            Keys k;
-            if (TryParseKey(tb_HotKey_Global.Text, out k))
-            {
-                HotKey_Global = k.ToString().ToUpper();
-                Common.SaveIniParamVal("全局设置", "HotKey_Global", HotKey_Global);
-                MessageShowList.SendEventMsg("已设置全局快捷键: " + HotKey_Global, 1);
-            }
-            else
-            {
-                MessageShowList.SendEventMsg("无效的全局快捷键: " + tb_HotKey_Global.Text, 2);
-            }
-        }
-
-        private void tb_HotKey_Switch_TextChanged(object sender, EventArgs e)
-        {
-            Keys k;
-            if (TryParseKey(tb_HotKey_Switch.Text, out k))
-            {
-                HotKey_Switch = k.ToString().ToUpper();
-                Common.SaveIniParamVal("辅助流设置", "HotKey_Switch", HotKey_Switch);
-                MessageShowList.SendEventMsg("已设置辅助流切换快捷键: " + HotKey_Switch, 1);
-            }
-            else
-            {
-                MessageShowList.SendEventMsg("无效的辅助流切换快捷键: " + tb_HotKey_Switch.Text, 2);
-            }
-        }
-
         private void btn_Run_Click(object sender, EventArgs e) { RunMianFunction(); }
         private void btn_Switch_Click(object sender, EventArgs e) { SwitchCurrentKey(); }
-        #endregion
 
-        #region 是否锐化截图切换
-        private void ckb_Sharpen_BFS_L_CheckedChanged(object sender, EventArgs e)
+        private void tb_HotKey_SwitchShootMode_Click(object sender, EventArgs e)
         {
-            int _Sharpen = ckb_Sharpen_BFS_L.Checked ? 1 : 0;
-            Common.SaveIniParamVal("战地演唱会识别设置_左", "Sharpen", _Sharpen.ToString());
+            try
+            {
+                string _oldKey = tb_HotKey_SwitchShootMode.Text;
+                string _newkey = PickKey(_oldKey);
+
+                if (_oldKey == _newkey)
+                    return;
+
+                tb_HotKey_SwitchShootMode.Text = _newkey;
+                HotKey_SwitchShootMode = _newkey;
+                Common.SaveIniParamVal("战地演唱会设置", "HotKey_SwitchShootMode", _newkey);
+                MessageShowList.SendEventMsg(string.Format("临时切换打点模式快捷键已设置为:{0}", _newkey));
+            }
+            catch { }
+        }
+        private void tb_HotKey_Global_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string _oldKey = tb_HotKey_Global.Text;
+                string _newkey = PickKey(_oldKey);
+
+                if (_oldKey == _newkey)
+                    return;
+
+                tb_HotKey_Global.Text = _newkey;
+                HotKey_Global = _newkey;
+                Common.SaveIniParamVal("全局设置", "HotKey_Global", _newkey);
+                MessageShowList.SendEventMsg(string.Format("启用/停止快捷键已设置为:{0}", _newkey));
+            }
+            catch { }
+        }
+        private void tb_HotKey_Switch_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string _oldKey = tb_HotKey_Switch.Text;
+                string _newkey = PickKey(_oldKey);
+
+                if (_oldKey == _newkey)
+                    return;
+
+                tb_HotKey_Switch.Text = _newkey;
+                HotKey_Switch = _newkey;
+                Common.SaveIniParamVal("辅助流设置", "HotKey_Switch", _newkey);
+                MessageShowList.SendEventMsg(string.Format("辅助流C/V切换快捷键已设置为:{0}", _newkey));
+            }
+            catch { }
         }
 
-        private void ckb_Sharpen_BFS_R_CheckedChanged(object sender, EventArgs e)
+        /// <summary>
+        /// 打开快捷键选择窗体，选择快捷键
+        /// </summary>
+        /// <param name="_oldkey"></param>
+        /// <returns></returns>
+        private string PickKey(string _oldkey = "")
         {
-            int _Sharpen = ckb_Sharpen_BFS_R.Checked ? 1 : 0;
-            Common.SaveIniParamVal("战地演唱会识别设置_右", "Sharpen", _Sharpen.ToString());
-        }
+            try
+            {
+                string _newkey = _oldkey;
+                frm_Allkeys f = new frm_Allkeys(_oldkey);
+                if (f.ShowDialog() == DialogResult.OK)
+                {
+                    _newkey = f.SelectedKey;
+                    f.Dispose();
+                }
 
-        private void ckb_Sharpen_R_CheckedChanged(object sender, EventArgs e)
-        {
-            int _Sharpen = ckb_Sharpen_R.Checked ? 1 : 0;
-            Common.SaveIniParamVal("菱形图案识别设置", "Sharpen", _Sharpen.ToString());
-        }
-
-        private void ckb_Sharpen_MB_CheckedChanged(object sender, EventArgs e)
-        {
-            int _Sharpen = ckb_Sharpen_MB.Checked ? 1 : 0;
-            Common.SaveIniParamVal("灵感条图案识别设置", "Sharpen", _Sharpen.ToString());
+                return _newkey;
+            }
+            catch { return _oldkey; }
         }
         #endregion
 
         #region 战地炮台设置相关
-        private void tb_BFS_R_Interval_TextChanged(object sender, EventArgs e)
-        {
-            if (int.TryParse(tb_BFS_R_Interval.Text, out int interval) && interval > 0)
-            {
-                tFD_LUNA.BFS_R_Interval = interval;
-                Common.SaveIniParamVal("战地演唱会设置", "BFS_R_Interval", interval.ToString());
-                MessageShowList.SendEventMsg("已设置战地演唱会截图间隔: " + interval + "毫秒", 1);
-            }
-            else
-            {
-                MessageShowList.SendEventMsg("无效的时间: " + tb_BFS_R_Interval.Text, 2);
-            }
-        }
-
         private void tb_BFS_CVZ_CX_time_TextChanged(object sender, EventArgs e)
         {
             if (int.TryParse(tb_BFS_CVZ_CX_time.Text, out int interval) && interval > 0)
             {
                 tFD_LUNA.CVZ_CX_time = interval;
                 Common.SaveIniParamVal("战地演唱会设置", "CVZ_CX_time", interval.ToString());
-                MessageShowList.SendEventMsg("已设置普通技能持续时间: " + interval + "毫秒", 1);
+                MessageShowList.SendEventMsg("[演唱会]已设置普通技能持续时间: " + interval + "毫秒", 1);
             }
             else
             {
                 MessageShowList.SendEventMsg("无效的时间: " + tb_BFS_CVZ_CX_time.Text, 2);
             }
         }
-
         private void tb_BFS_PowerfulTime_TextChanged(object sender, EventArgs e)
         {
             if (int.TryParse(tb_BFS_PowerfulTime.Text, out int interval) && interval > 0)
             {
                 tFD_LUNA.PowerfulTime = interval;
                 Common.SaveIniParamVal("战地演唱会设置", "PowerfulTime", interval.ToString());
-                MessageShowList.SendEventMsg("已设置强化技能持续时间: " + interval + "毫秒", 1);
+                MessageShowList.SendEventMsg("[演唱会]已设置强化技能持续时间: " + interval + "毫秒", 1);
             }
             else
             {
                 MessageShowList.SendEventMsg("无效的时间: " + tb_BFS_PowerfulTime.Text, 2);
             }
         }
-
         private void rb_BFS_APF_Disable_CheckedChanged(object sender, EventArgs e)
         {
             try
@@ -1290,11 +867,6 @@ namespace TFD_DJ_LUNA
                     _apf = 1;
                     _modename = "启用";
                 }
-                else if (rb_BFS_APF_Enable_SP.Checked)
-                {
-                    _apf = 2;
-                    _modename = "启用[CVZ一起按]";
-                }
 
                 if (tFD_LUNA != null)
                 {
@@ -1302,12 +874,233 @@ namespace TFD_DJ_LUNA
                     Common.SaveIniParamVal("战地演唱会设置", "AutoPowerfulSkill", _apf.ToString());
                 }
 
-                MessageShowList.SendEventMsg("已切换自动使用强化技能: " + _modename, 1);
+                MessageShowList.SendEventMsg("[演唱会]已切换自动使用强化技能: " + _modename, 1);
             }
             catch { }
         }
         #endregion
 
+        #region 战地演唱会识别设置_右
+        private void RAS_BFL_R_P_ImgModeChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RS_BFS_R.OpencvMode = _val;
+                Common.SaveIniParamVal("战地演唱会识别设置_右", "OpencvMode", _val.ToString());
 
+                MessageShowList.SendEventMsg("已切换战地炮台图像处理模式: " + ExtraData, 1);
+            }
+            catch { }
+            // MessageShowList.SendEventMsg(string.Format("1:{0},{1},{2}", ParamName, ParamValue, ExtraData));
+        }
+        private void RAS_BFL_R_P_MaskModeChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RS_BFS_R.MaskMode = _val;
+                Common.SaveIniParamVal("战地演唱会识别设置_右", "MaskMode", _val.ToString());
+            }
+            catch { }
+            // MessageShowList.SendEventMsg(string.Format("2:{0},{1},{2}", ParamName, ParamValue, ExtraData));
+        }
+        private void RAS_BFL_R_P_RealScreenWidthChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RS_BFS_R.RealScreenWidth = _val;
+                Common.SaveIniParamVal("战地演唱会识别设置_右", "RealScreenWidth", _val.ToString());
+            }
+            catch { }
+
+            //MessageShowList.SendEventMsg(string.Format("3:{0},{1},{2}", ParamName, ParamValue, ExtraData));
+        }
+        private void RAS_BFL_R_P_RecognizeAreaChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                Rectangle rec = (Rectangle)ParamValue;
+                if (tFD_LUNA != null && tFD_LUNA.RS_BFS_R != null)
+                    tFD_LUNA.RS_BFS_R.SetArea(rec.X, rec.Y, rec.Width, rec.Height);
+                MessageShowList.SendEventMsg("已设置战地炮台右边识别区: " + rec.ToString(), 1);
+            }
+            catch { }
+            // MessageShowList.SendEventMsg(string.Format("4:{0},{1},{2}", ParamName, ParamValue, ExtraData));
+        }
+        private void RAS_BFL_R_P_ScaleModeChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RS_BFS_R.ScaleMode = _val;
+                Common.SaveIniParamVal("战地演唱会识别设置_右", "ScaleMode", _val.ToString());
+            }
+            catch { }
+
+            // MessageShowList.SendEventMsg(string.Format("5:{0},{1},{2}", ParamName, ParamValue, ExtraData));
+        }
+        private void RAS_BFL_R_P_ThresholdChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                double thd = (double)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RS_BFS_R.Threshold = thd;
+                Common.SaveIniParamVal("战地演唱会识别设置_右", "Threshold", thd.ToString());
+            }
+            catch { }
+
+            // MessageShowList.SendEventMsg(string.Format("6:{0},{1},{2}", ParamName, ParamValue, ExtraData));
+        }
+        #endregion
+
+        #region 菱形图案识别设置
+        private void RAS_Normal_Block_P_ImgModeChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RecognizeSetting_Rhombus.OpencvMode = _val;
+                Common.SaveIniParamVal("菱形图案识别设置", "OpencvMode", _val.ToString());
+
+                MessageShowList.SendEventMsg("已切换菱形图案处理模式: " + ExtraData, 1);
+            }
+            catch { }
+        }
+        private void RAS_Normal_Block_P_MaskModeChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RecognizeSetting_Rhombus.MaskMode = _val;
+                Common.SaveIniParamVal("菱形图案识别设置", "MaskMode", _val.ToString());
+            }
+            catch { }
+        }
+        private void RAS_Normal_Block_P_RealScreenWidthChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RecognizeSetting_Rhombus.RealScreenWidth = _val;
+                Common.SaveIniParamVal("菱形图案识别设置", "RealScreenWidth", _val.ToString());
+            }
+            catch { }
+        }
+        private void RAS_Normal_Block_P_RecognizeAreaChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                Rectangle rec = (Rectangle)ParamValue;
+                if (tFD_LUNA != null && tFD_LUNA.RecognizeSetting_Rhombus != null)
+                    tFD_LUNA.RecognizeSetting_Rhombus.SetArea(rec.X, rec.Y, rec.Width, rec.Height);
+                MessageShowList.SendEventMsg("已设置菱形图案识别区: " + rec.ToString(), 1);
+            }
+            catch { }
+            //MessageShowList.SendEventMsg(string.Format("4:{0},{1},{2}", ParamName, ParamValue, ExtraData));
+        }
+        private void RAS_Normal_Block_P_ScaleModeChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RecognizeSetting_Rhombus.ScaleMode = _val;
+                Common.SaveIniParamVal("菱形图案识别设置", "ScaleMode", _val.ToString());
+            }
+            catch { }
+        }
+        private void RAS_Normal_Block_P_ThresholdChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                double thd = (double)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RecognizeSetting_Rhombus.Threshold = thd;
+                Common.SaveIniParamVal("菱形图案识别设置", "Threshold", thd.ToString());
+            }
+            catch { }
+        }
+        #endregion
+
+        #region  灵感条图案识别设置
+        private void RAS_MuseBar_P_ImgModeChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RecognizeSetting_MuseBar.OpencvMode = _val;
+                Common.SaveIniParamVal("灵感条图案识别设置", "OpencvMode", _val.ToString());
+
+                MessageShowList.SendEventMsg("已切换灵感条图案处理模式: " + ExtraData, 1);
+            }
+            catch { }
+        }
+        private void RAS_MuseBar_P_MaskModeChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RecognizeSetting_MuseBar.MaskMode = _val;
+                Common.SaveIniParamVal("灵感条图案识别设置", "MaskMode", _val.ToString());
+            }
+            catch { }
+        }
+        private void RAS_MuseBar_P_RealScreenWidthChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RecognizeSetting_MuseBar.RealScreenWidth = _val;
+                Common.SaveIniParamVal("灵感条图案识别设置", "RealScreenWidth", _val.ToString());
+            }
+            catch { }
+        }
+        private void RAS_MuseBar_P_RecognizeAreaChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                Rectangle rec = (Rectangle)ParamValue;
+                if (tFD_LUNA != null && tFD_LUNA.RecognizeSetting_MuseBar != null)
+                    tFD_LUNA.RecognizeSetting_MuseBar.SetArea(rec.X, rec.Y, rec.Width, rec.Height);
+                MessageShowList.SendEventMsg("已设置灵感条图案识别区: " + rec.ToString(), 1);
+            }
+            catch { }
+        }
+        private void RAS_MuseBar_P_ScaleModeChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                int _val = (int)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RecognizeSetting_MuseBar.ScaleMode = _val;
+                Common.SaveIniParamVal("灵感条图案识别设置", "ScaleMode", _val.ToString());
+            }
+            catch { }
+        }
+        private void RAS_MuseBar_P_ThresholdChanged(string ParamName, object ParamValue, object ExtraData)
+        {
+            try
+            {
+                double thd = (double)ParamValue;
+                if (tFD_LUNA != null)
+                    tFD_LUNA.RecognizeSetting_MuseBar.Threshold = thd;
+                Common.SaveIniParamVal("灵感条图案识别设置", "Threshold", thd.ToString());
+            }
+            catch { }
+        }
+        #endregion
     }
 }

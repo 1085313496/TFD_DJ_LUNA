@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frm_log));
             this.rtb = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
@@ -55,6 +56,7 @@
             this.ClientSize = new System.Drawing.Size(360, 135);
             this.Controls.Add(this.rtb);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "frm_log";
             this.Opacity = 0.4D;
             this.Text = "frm_log";

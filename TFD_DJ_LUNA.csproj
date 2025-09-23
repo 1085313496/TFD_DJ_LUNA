@@ -38,7 +38,16 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>luna.ico</ApplicationIcon>
+    <ApplicationIcon>ico_pack_256x256_uluna_anim.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -81,6 +90,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseClass\GlobalMouseHook.cs" />
     <Compile Include="Tools\DicItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -124,6 +134,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BaseClass\ScreenPatternDetector.cs" />
     <Compile Include="BaseClass\SimulatorBase.cs" />
+    <Compile Include="Tools\RecognizeAreaSetting.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Tools\RecognizeAreaSetting.Designer.cs">
+      <DependentUpon>RecognizeAreaSetting.cs</DependentUpon>
+    </Compile>
     <Compile Include="Tools\SwitchBar.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -168,6 +184,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="Tools\RecognizeAreaSetting.resx">
+      <DependentUpon>RecognizeAreaSetting.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Tools\SwitchBar.resx">
       <DependentUpon>SwitchBar.cs</DependentUpon>
     </EmbeddedResource>
@@ -179,6 +198,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+    <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -191,55 +211,44 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="101000018.png" />
+    <Content Include="ico_pack_256x256_uluna_anim.ico" />
     <Content Include="imgs\BFL\BFL_R_C.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="imgs\BFL\BFL_R_C_Mask.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="imgs\BFL\BFL_R_Q.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\BFL\BFL_R_Q_mask.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="imgs\BFL\BFL_R_V.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="imgs\lunaBFS\BFS_L_C.png">
+    <Content Include="imgs\BFL\BFL_R_V_mask.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="imgs\lunaBFS\BFS_L_Q.png">
+    <Content Include="imgs\BFL\BFL_R_Z.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="imgs\lunaBFS\BFS_L_V.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="imgs\lunaBFS\BFS_L_Z.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="imgs\lunaBFS\BFS_R_C.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="imgs\lunaBFS\BFS_R_Q.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="imgs\lunaBFS\BFS_R_V.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="imgs\lunaBFS\BFS_R_Z.png">
+    <Content Include="imgs\BFL\BFL_R_Z_mask.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="imgs\Musebar\fmb_01.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="imgs\Musebar\fmb_02.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="imgs\Musebar\fmb_03.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="imgs\Musebar\fmb_04.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="imgs\Musebar\fmb_05.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="imgs\Musebar\ln_lgt.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\Noise\Noise_B_C.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="imgs\Noise\Noise_B_C_Mask.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="imgs\Noise\Noise_B_Q.png">
@@ -248,32 +257,22 @@
     <Content Include="imgs\Noise\Noise_B_Q_Mask.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="imgs\tfdlunadj\ln_jn_01.png">
+    <Content Include="imgs\Noise\Noise_B_V.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="imgs\tfdlunadj\ln_lgt.png">
+    <Content Include="imgs\Noise\Noise_B_V_Mask.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="imgs\tfdlunadj\ln_zx.png">
+    <Content Include="imgs\Noise\Noise_B_Z.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="imgs\tfdlunadj\ln_zy01.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="imgs\tfdlunadj\lunadj0.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="imgs\tfdlunadj\lunadj1.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="imgs\tfdlunadj\lunadj2.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="imgs\tfdlunadj\lunadj3.png">
+    <Content Include="imgs\Noise\Noise_B_Z_Mask.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="luna.ico" />
     <Content Include="luna.png" />
+    <Content Include="uluna_anim %281%29.ico" />
+    <Content Include="uluna_anim.ico" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -51,7 +51,16 @@ namespace TFD_DJ_LUNA
             Button btn = obj as Button;
             string _k = Common.GetObjStr(btn.Tag, false);
 
-            frm_Allkeys f = new frm_Allkeys();
+            string _oldkey = "";
+            switch (_k)
+            {
+                case "Q": _oldkey = tb_K_Q.Text; break;
+                case "C": _oldkey = tb_K_C.Text; break;
+                case "V": _oldkey = tb_K_V.Text; break;
+                case "Z": _oldkey = tb_K_Z.Text; break;
+            }
+
+            frm_Allkeys f = new frm_Allkeys(_oldkey);
             if (f.ShowDialog() == DialogResult.OK)
             {
                 string newKey = f.SelectedKey;
