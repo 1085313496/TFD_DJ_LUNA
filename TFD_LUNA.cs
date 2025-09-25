@@ -573,6 +573,9 @@ namespace TFD_DJ_LUNA
                     //MessageShowList.SendEventMsg("未检测到技能状态。");
                 }
                 #endregion
+
+                //if(Mode==3)
+                //    Thread.Sleep(80);
             }
             catch (Exception ex)
             {
@@ -585,19 +588,19 @@ namespace TFD_DJ_LUNA
         /// 按下按键
         /// </summary>
         /// <param name="_key"></param>
-        private void PressKey_Normal(string _key)
+        private void PressKey_Normal(string _key, int _interval = 50)
         {
             try
             {
                 switch (_key)
                 {
-                    case "LBUTTON": SendKBM.MouseLeftClick(20); break;
+                    case "LBUTTON": SendKBM.MouseLeftClick(10); break;
                     case "RBUTTON": SendKBM.MouseRightClick(10); break;
                     case "MBUTTON": SendKBM.MouseMiddleClick(); break;
-                    case "Q": SendKBM.SendKeyPress(btKey_Q, 50); break;
-                    case "C": SendKBM.SendKeyPress(btKey_C, 50); break;
-                    case "V": SendKBM.SendKeyPress(btKey_V, 50); break;
-                    case "Z": SendKBM.SendKeyPress(btKey_Z, 50); break;
+                    case "Q": SendKBM.SendKeyPress(btKey_Q, _interval); break;
+                    case "C": SendKBM.SendKeyPress(btKey_C, _interval); break;
+                    case "V": SendKBM.SendKeyPress(btKey_V, _interval); break;
+                    case "Z": SendKBM.SendKeyPress(btKey_Z, _interval); break;
                 }
                 MessageShowList.SendEventMsg(string.Format("按下按键{0},{1}", _key, DateTime.Now.ToString("mm:ss:fff")));
             }
@@ -639,7 +642,7 @@ namespace TFD_DJ_LUNA
                         switch (LastBeatKeyType)
                         {
                             case 1:
-                                SendKBM.SendMultiKeysPress(keybytes);
+                                SendKBM.SendMultiKeysPress(keybytes, 100);
                                 MessageShowList.SendEventMsg("VZC同时按");
                                 LastBeatKeyType = 2;
                                 break;
@@ -660,7 +663,7 @@ namespace TFD_DJ_LUNA
                         break;
                     case 3:
                         #region [CVZ同时按]
-                        SendKBM.SendMultiKeysPress(keybytes);
+                        SendKBM.SendMultiKeysPress(keybytes, 100);
                         MessageShowList.SendEventMsg("VZC同时按");
                         #endregion
                         break;
@@ -776,6 +779,7 @@ namespace TFD_DJ_LUNA
             try
             {
                 bool bl_R = true;
+                byte[] keybytes = { btKey_V, btKey_Z, btKey_C };
 
                 switch (Mode)
                 {
@@ -806,9 +810,13 @@ namespace TFD_DJ_LUNA
                             PressKey_Normal("Z");
                             Thread.Sleep(150);
                             PressKey_Normal("C");
+                            Thread.Sleep(150);
+
 
                             if (BFL_AutoShot)
                             {
+                                _pcvzTime = _pcvzTime - 150 - 150 - 150;
+
                                 SendKBM.MouseLeftDown();
                                 Thread.Sleep(_pcvzTime);
                                 SendKBM.MouseLeftUp();

@@ -850,7 +850,7 @@ namespace TFD_DJ_LUNA
                 input[i].type = InputType.KEYBOARD;
                 input[i].U.ki.wVk = keys[i];
                 input[i].U.ki.dwFlags = WindowsConstant.KEYEVENTF_KEYDOWN;
-                input[i].U.ki.time = 0;// NativeMethods.GetTickCount();
+                input[i].U.ki.time =  NativeMethods.GetTickCount();
 
                 input[i].U.ki.wScan = 0;
                 input[i].U.ki.dwExtraInfo = IntPtr.Zero;
@@ -864,13 +864,60 @@ namespace TFD_DJ_LUNA
                 input[index].type = InputType.KEYBOARD; ;
                 input[index].U.ki.wVk = keys[i];
                 input[index].U.ki.dwFlags = WindowsConstant.KEYEVENTF_KEYUP;
-                input[index].U.ki.time = 0;// NativeMethods.GetTickCount();
+                input[index].U.ki.time =  NativeMethods.GetTickCount();
 
                 input[index].U.ki.wScan = 0;
                 input[index].U.ki.dwExtraInfo = IntPtr.Zero;
             }
 
             if (NativeMethods.SendInput((uint)input.Length, input, Marshal.SizeOf(typeof(Input))) != input.Length)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+        }
+
+       
+        public void SendMultiKeysPress(byte[] keys, int holdTimeMs = 100)
+        {
+            // 第一步：只发送按下事件
+            Input[] downInputs = new Input[keys.Length];
+
+            for (int i = 0; i < keys.Length; i++)
+            {
+                downInputs[i] = new Input();
+                downInputs[i].type = InputType.KEYBOARD;
+                downInputs[i].U.ki.wVk = keys[i];
+                downInputs[i].U.ki.dwFlags = WindowsConstant.KEYEVENTF_KEYDOWN;
+                downInputs[i].U.ki.time = NativeMethods.GetTickCount();
+                downInputs[i].U.ki.wScan = 0;
+                downInputs[i].U.ki.dwExtraInfo = IntPtr.Zero;
+            }
+
+            // 发送按下事件
+            if (NativeMethods.SendInput((uint)downInputs.Length, downInputs, Marshal.SizeOf(typeof(Input))) != downInputs.Length)
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+
+            // 第二步：同步等待（会阻塞当前线程）
+            System.Threading.Thread.Sleep(holdTimeMs);
+
+            // 第三步：发送释放事件
+            Input[] upInputs = new Input[keys.Length];
+
+            for (int i = 0; i < keys.Length; i++)
+            {
+                upInputs[i] = new Input();
+                upInputs[i].type = InputType.KEYBOARD;
+                upInputs[i].U.ki.wVk = keys[i];
+                upInputs[i].U.ki.dwFlags = WindowsConstant.KEYEVENTF_KEYUP;
+                upInputs[i].U.ki.time = NativeMethods.GetTickCount();
+                upInputs[i].U.ki.wScan = 0;
+                upInputs[i].U.ki.dwExtraInfo = IntPtr.Zero;
+            }
+
+            // 发送释放事件
+            if (NativeMethods.SendInput((uint)upInputs.Length, upInputs, Marshal.SizeOf(typeof(Input))) != upInputs.Length)
             {
                 throw new Win32Exception(Marshal.GetLastWin32Error());
             }
