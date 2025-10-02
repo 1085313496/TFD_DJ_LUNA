@@ -1,12 +1,27 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
 namespace TFD_DJ_LUNA
 {
     public partial class frm_PickArea : Form
     {
+        // 添加DPI感知API
+        [DllImport("user32.dll")]
+        private static extern bool SetProcessDPIAware();
+
+        [DllImport("shcore.dll")]
+        private static extern int SetProcessDpiAwareness(ProcessDPIAwareness value);
+
+        public enum ProcessDPIAwareness
+        {
+            DPI_Unaware = 0,
+            System_DPI_Aware = 1,
+            Per_Monitor_DPI_Aware = 2
+        }
+
         /// <summary>
         /// 框选线的颜色
         /// </summary>
@@ -48,12 +63,61 @@ namespace TFD_DJ_LUNA
         {
             InitializeComponent();
 
+            // 启用DPI感知
+            EnableDPIAwareness();
+
             this.DialogResult = DialogResult.None;
             this.DoubleBuffered = true;
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint, true);
             this.UpdateStyles();
 
             SetDefaultValues();
+        }
+
+        /// <summary>
+        /// 启用DPI感知
+        /// </summary>
+        private void EnableDPIAwareness()
+        {
+            try
+            {
+                if (Environment.OSVersion.Version >= new Version(6, 3))
+                {
+                    // Windows 8.1及以上
+                    SetProcessDpiAwareness(ProcessDPIAwareness.Per_Monitor_DPI_Aware);
+                }
+                else
+                {
+                    // Windows Vista及以上
+                    SetProcessDPIAware();
+                }
+            }
+            catch
+            {
+                // 如果API调用失败，忽略错误
+            }
+        }
+
+        /// <summary>
+        /// 获取修正后的鼠标位置（处理DPI缩放）
+        /// </summary>
+        private Point GetCorrectMousePosition(Point rawPosition)
+        {
+            // 通过屏幕坐标转换确保DPI缩放下的准确性
+            Point screenPoint = this.PointToScreen(rawPosition);
+            Point correctedPoint = this.PointToClient(screenPoint);
+            return correctedPoint;
+        }
+
+        /// <summary>
+        /// 获取当前DPI缩放比例
+        /// </summary>
+        private float GetDpiScale()
+        {
+            using (Graphics g = this.CreateGraphics())
+            {
+                return g.DpiX / 96f;
+            }
         }
 
         private void frm_PickArea_Load(object sender, EventArgs e)
@@ -139,6 +203,7 @@ namespace TFD_DJ_LUNA
         /// 鼠标拖动结束位置
         /// </summary>
         Point ptEnd = new Point(0, 0);
+
         private void frm_PickArea_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left)
@@ -147,28 +212,34 @@ namespace TFD_DJ_LUNA
             if (!isMouseDown)
             {
                 isMouseDown = true;
-                ptLocation = e.Location;
-                ptEnd = e.Location;
+                // 使用修正后的鼠标位置
+                ptLocation = GetCorrectMousePosition(e.Location);
+                ptEnd = ptLocation;
                 this.Invalidate();
             }
         }
+
         private void frm_PickArea_MouseUp(object sender, MouseEventArgs e)
         {
             isMouseDown = false;
             this.Invalidate();
         }
+
         private void frm_PickArea_MouseMove(object sender, MouseEventArgs e)
         {
             if (isMouseDown)
             {
+                // 使用修正后的鼠标位置
+                Point correctedPosition = GetCorrectMousePosition(e.Location);
+
                 if (!isSpaceDown)
                 {
-                    ptEnd = e.Location;
+                    ptEnd = correctedPosition;
                 }
                 else
                 {
-                    int x_ex = e.Location.X - ptSpaceB.X;
-                    int y_ex = e.Location.Y - ptSpaceB.Y;
+                    int x_ex = correctedPosition.X - ptSpaceB.X;
+                    int y_ex = correctedPosition.Y - ptSpaceB.Y;
 
                     ptLocation = new Point(ptLT.X + x_ex, ptLT.Y + y_ex);
                     ptEnd = new Point(ptRB.X + x_ex, ptRB.Y + y_ex);
@@ -195,6 +266,7 @@ namespace TFD_DJ_LUNA
         /// 用于记录框选区域右下角位置
         /// </summary>
         private Point ptRB = new Point(0, 0);
+
         private void frm_PickArea_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Space)
@@ -202,7 +274,9 @@ namespace TFD_DJ_LUNA
                 if (!isSpaceDown && isMouseDown)
                 {
                     isSpaceDown = true;
-                    ptSpaceB = this.PointToClient(Cursor.Position); // 获取当前鼠标位置
+                    // 使用修正后的鼠标位置
+                    Point currentPos = GetCorrectMousePosition(this.PointToClient(Cursor.Position));
+                    ptSpaceB = currentPos;
 
                     ptLT = ptLocation;
                     ptRB = ptEnd;
@@ -211,6 +285,7 @@ namespace TFD_DJ_LUNA
                 }
             }
         }
+
         private void frm_PickArea_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Space)
@@ -218,10 +293,8 @@ namespace TFD_DJ_LUNA
                 isSpaceDown = false;
                 this.Cursor = Cursors.Default;
             }
-
         }
         #endregion
-
 
         private void frm_PickArea_Resize(object sender, EventArgs e)
         {

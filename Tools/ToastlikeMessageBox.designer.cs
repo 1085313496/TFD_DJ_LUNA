@@ -28,7 +28,8 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.timer_AutoHide = new System.Windows.Forms.Timer();
+            this.components = new System.ComponentModel.Container();
+            this.timer_AutoHide = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // timer_AutoHide
@@ -38,8 +39,8 @@
             // 
             // ToastlikeMessageBox
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(112)))), ((int)(((byte)(112)))), ((int)(((byte)(112)))));
             this.ClientSize = new System.Drawing.Size(120, 25);
             this.Font = new System.Drawing.Font("微软雅黑", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
